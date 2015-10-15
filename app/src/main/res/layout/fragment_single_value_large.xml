@@ -14,7 +14,7 @@
         android:text=""
         android:id="@+id/element_name"
         android:textColor="#000000"
-        android:textSize="14dp"
+        android:textSize="16dp"
         android:gravity="right"
         android:textAlignment="gravity"
         android:paddingRight="10dp" />
@@ -31,6 +31,10 @@
         android:layout_height="wrap_content"
         android:layout_weight="2"
         android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -49,5 +53,9 @@
                 android:text=""
                 android:id="@+id/element_value" />
         </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 </LinearLayout>

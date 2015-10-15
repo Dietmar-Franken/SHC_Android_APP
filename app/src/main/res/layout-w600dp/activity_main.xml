@@ -12,10 +12,12 @@
 
     </FrameLayout>
 
-    <Space
-        android:layout_width="2dp"
+    <TextView
+        android:layout_width="1dp"
         android:layout_height="match_parent"
-        android:background="@android:color/darker_gray"/>
+        android:background="@android:color/darker_gray"
+        android:layout_marginRight="2dp"
+        android:layout_marginLeft="2dp" />
 
     <FrameLayout
         android:id="@+id/roomViewPlaceHolderTablet"

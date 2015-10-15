@@ -25,7 +25,10 @@ public class BoxFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        if(getArguments() != null && getArguments().containsKey("name")) {
+        if(getArguments() != null &&getArguments().containsKey("useLargeLayout") && getArguments().getBoolean("useLargeLayout") && getArguments() != null && getArguments().containsKey("name")) {
+
+            return inflater.inflate(R.layout.fragment_box_start_large, container, false);
+        } else if(getArguments() != null && getArguments().containsKey("name")) {
 
             return inflater.inflate(R.layout.fragment_box_start, container, false);
         }
@@ -38,7 +41,8 @@ public class BoxFragment extends Fragment {
 
         if(getArguments() != null && getArguments().containsKey("name")) {
 
-            ((TextView) getActivity().findViewById(R.id.element_boxStart)).setText(getArguments().getString("name"));
+            TextView start = ((TextView) getActivity().findViewById(R.id.element_boxStart));
+            start.setText(getArguments().getString("name"));
         }
     }
 }
