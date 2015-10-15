@@ -15,6 +15,9 @@ import de.rpi_controlcenter.shc.R;
  */
 public class BoxFragment extends Fragment {
 
+    public final int NAME_TEXT_VIEW = (new Double(Math.random() * 1000)).intValue();
+
+    private TextView start;
 
     public BoxFragment() {
         // Required empty public constructor
@@ -41,7 +44,11 @@ public class BoxFragment extends Fragment {
 
         if(getArguments() != null && getArguments().containsKey("name")) {
 
-            TextView start = ((TextView) getActivity().findViewById(R.id.element_boxStart));
+            if(start == null) {
+
+                start = ((TextView) getActivity().findViewById(R.id.element_boxStart));
+                start.setId(NAME_TEXT_VIEW);
+            }
             start.setText(getArguments().getString("name"));
         }
     }

@@ -4,8 +4,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -90,9 +92,6 @@ public class MainActivity extends AppCompatActivity implements BoundetShcService
             }
         });
         getFragmentManager().beginTransaction().replace(R.id.roomListPlaceHolder, roomListFragment).commit();
-
-        //Title der Action Bar setzen
-        //getActionBar().setTitle(getString(R.string.mainActivity));
     }
 
     @Override

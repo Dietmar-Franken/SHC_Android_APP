@@ -28,17 +28,11 @@
         <activity
             android:name=".Activity.SettingsActivity"
             android:label="@string/settingsActivity" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
-            android:name=".Activity.RoomViewActivity"
+            android:name=".Activity.RoomViewAcrivity"
             android:label="@string/roomViewActivity"
             android:theme="@style/AppTheme.NoActionBar" >
-        </activity>
-        <activity android:name=".Activity.RoomViewAcrivity" >
         </activity>
 
         <service

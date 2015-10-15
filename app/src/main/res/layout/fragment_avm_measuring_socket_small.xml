@@ -37,7 +37,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/elements.text.temp"
-                android:id="@+id/element_temp_name"/>
+                android:id="@+id/element_temp_name"
+                android:textColor="@android:color/primary_text_light"
+                android:layout_marginRight="4dp" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -55,7 +57,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/elements.text.power"
-                android:id="@+id/element_power_name"/>
+                android:id="@+id/element_power_name"
+                android:textColor="@android:color/primary_text_light"
+                android:layout_marginRight="4dp" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -72,7 +76,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/elements.text.energy"
-                android:id="@+id/element_energy_name"/>
+                android:id="@+id/element_energy_name"
+                android:textColor="@android:color/primary_text_light"
+                android:layout_marginRight="4dp" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

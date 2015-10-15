@@ -44,6 +44,11 @@
     <string name="elements.text.lightIntenisity">Lichtstärke: </string>
     <string name="elements.text.state">Status: </string>
 
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="errors.nocConnection.title">SHC Server nicht erreichbar</string>
+    <string name="errors.nocConnection.message">Der SHC Server konnte nicht erreicht werden, entweder ist die Verbindung unterbrochen oder falsch konfiguriert</string>
+    <string name="errors.nocConnection.settings">Einstellungen</string>
+    <string name="errors.nocConnection.exit">Beenden</string>
+
+    <string name="errors.sendCommand.succsess">Befehl erfolgreich gesenden</string>
+    <string name="errors.sendCommand.error">Fehler: </string>
 </resources>

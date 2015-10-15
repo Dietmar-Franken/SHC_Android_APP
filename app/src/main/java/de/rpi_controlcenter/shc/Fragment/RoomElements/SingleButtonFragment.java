@@ -49,13 +49,16 @@ public class SingleButtonFragment extends Fragment {
         super.onStart();
 
         //Elemente laden
-        LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.roomViewLayoutContainer);
-        onButton = (Button) linearLayout.findViewById(R.id.element_onButton);
-        onButton.setId(ON_BUTTON);
-        nameView = (TextView) linearLayout.findViewById(R.id.element_name);
-        nameView.setId(NAME_TEXT_VIEW);
-        iconView = (ImageView) linearLayout.findViewById(R.id.element_icon);
-        iconView.setId(ICON_IMAGE_VIEW);
+        if(nameView == null) {
+
+            LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.roomViewLayoutContainer);
+            onButton = (Button) linearLayout.findViewById(R.id.element_onButton);
+            onButton.setId(ON_BUTTON);
+            nameView = (TextView) linearLayout.findViewById(R.id.element_name);
+            nameView.setId(NAME_TEXT_VIEW);
+            iconView = (ImageView) linearLayout.findViewById(R.id.element_icon);
+            iconView.setId(ICON_IMAGE_VIEW);
+        }
 
         //Raum Element Daten holen
         Bundle args = getArguments();
@@ -104,10 +107,10 @@ public class SingleButtonFragment extends Fragment {
                         if (error.equals("")) {
 
                             //kein Fehler
-                            Toast.makeText(v.getContext(), "Befehl gesendet", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(v.getContext(), R.string.errors_sendCommand_succsess, Toast.LENGTH_SHORT).show();
                         } else {
 
-                            Toast.makeText(v.getContext(), "Fehler: " + error, Toast.LENGTH_LONG).show();
+                            Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
                         }
                     }
                 });

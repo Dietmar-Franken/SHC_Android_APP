@@ -1,8 +1,11 @@
 package de.rpi_controlcenter.shc.Fragment;
 
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +15,7 @@ import android.widget.LinearLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.rpi_controlcenter.shc.Activity.SettingsActivity;
 import de.rpi_controlcenter.shc.Data.RoomElement;
 import de.rpi_controlcenter.shc.Fragment.RoomElements.AvmMeasuringSocketFragment;
 import de.rpi_controlcenter.shc.Fragment.RoomElements.BmpFragment;
@@ -68,6 +72,30 @@ public class RoomViewFragment extends Fragment {
 
             @Override
             public void roomElementsUpdated(List<RoomElement> roomElements) {
+
+                if(roomElements == null) {
+
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.errors_nocConnection_title)
+                            .setMessage(R.string.errors_nocConnection_message)
+                            .setPositiveButton(R.string.errors_nocConnection_settings, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    Intent settings = new Intent(getActivity(), SettingsActivity.class);
+                                    startActivity(settings);
+                                }
+                            })
+                            .setNegativeButton(R.string.errors_nocConnection_exit, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    System.exit(0);
+                                }
+                            })
+                            .show();
+                    return;
+                }
 
                 //alte Fragments entfernen und Liste leeren
                 FragmentTransaction ft = getFragmentManager().beginTransaction();

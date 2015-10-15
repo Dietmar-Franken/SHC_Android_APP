@@ -50,17 +50,20 @@ public class BmpFragment extends Fragment {
         super.onStart();
 
         //Elemente laden
-        LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.roomViewLayoutContainer);
-        nameView = (TextView) linearLayout.findViewById(R.id.element_name);
-        nameView.setId(NAME_TEXT_VIEW);
-        tempView = (TextView) linearLayout.findViewById(R.id.element_temp);
-        tempView.setId(TEMP_TEXT_VIEW);
-        pressView = (TextView) linearLayout.findViewById(R.id.element_press);
-        pressView.setId(PRESS_TEXT_VIEW);
-        altiView = (TextView) linearLayout.findViewById(R.id.element_alti);
-        altiView.setId(ALTI_TEXT_VIEW);
-        iconView = (ImageView) linearLayout.findViewById(R.id.element_icon);
-        iconView.setId(ICON_IMAGE_VIEW);
+        if(nameView == null) {
+
+            LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.roomViewLayoutContainer);
+            nameView = (TextView) linearLayout.findViewById(R.id.element_name);
+            nameView.setId(NAME_TEXT_VIEW);
+            tempView = (TextView) linearLayout.findViewById(R.id.element_temp);
+            tempView.setId(TEMP_TEXT_VIEW);
+            pressView = (TextView) linearLayout.findViewById(R.id.element_press);
+            pressView.setId(PRESS_TEXT_VIEW);
+            altiView = (TextView) linearLayout.findViewById(R.id.element_alti);
+            altiView.setId(ALTI_TEXT_VIEW);
+            iconView = (ImageView) linearLayout.findViewById(R.id.element_icon);
+            iconView.setId(ICON_IMAGE_VIEW);
+        }
 
         //Raum Element Daten holen
         Bundle args = getArguments();

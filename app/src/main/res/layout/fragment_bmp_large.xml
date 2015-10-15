@@ -42,7 +42,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/elements.text.temp"
-                android:id="@+id/element_temp_name"/>
+                android:id="@+id/element_temp_name"
+                android:textColor="@android:color/primary_text_light"
+                android:layout_marginRight="4dp" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -60,7 +62,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/elements.text.press"
-                android:id="@+id/element_press_name"/>
+                android:id="@+id/element_press_name"
+                android:textColor="@android:color/primary_text_light"
+                android:layout_marginRight="4dp" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -77,7 +81,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/elements.text.alti"
-                android:id="@+id/element_alti_name"/>
+                android:id="@+id/element_alti_name"
+                android:textColor="@android:color/primary_text_light"
+                android:layout_marginRight="4dp" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

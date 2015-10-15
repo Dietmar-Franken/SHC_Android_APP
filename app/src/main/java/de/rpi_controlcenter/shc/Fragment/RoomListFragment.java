@@ -1,14 +1,19 @@
 package de.rpi_controlcenter.shc.Fragment;
 
+import android.app.AlertDialog;
 import android.app.ListFragment;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.view.View;
 import android.widget.ListView;
 
 import java.util.List;
 
+import de.rpi_controlcenter.shc.Activity.SettingsActivity;
 import de.rpi_controlcenter.shc.Data.Room;
 import de.rpi_controlcenter.shc.Interface.BoundetShcService;
 import de.rpi_controlcenter.shc.ListAdapter.RoomListAdapter;
+import de.rpi_controlcenter.shc.R;
 import de.rpi_controlcenter.shc.Service.SHCConnectorService;
 
 /**
@@ -62,6 +67,30 @@ public class RoomListFragment extends ListFragment {
 
             @Override
             public void roomDataUpdated(List<Room> rooms) {
+
+                if(rooms == null) {
+
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.errors_nocConnection_title)
+                            .setMessage(R.string.errors_nocConnection_message)
+                            .setPositiveButton(R.string.errors_nocConnection_settings, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    Intent settings = new Intent(getActivity(), SettingsActivity.class);
+                                    startActivity(settings);
+                                }
+                            })
+                            .setNegativeButton(R.string.errors_nocConnection_exit, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    System.exit(0);
+                                }
+                            })
+                            .show();
+                    return;
+                }
 
                 RoomListFragment.this.roomListAdapter = new RoomListAdapter(getActivity(), rooms);
                 RoomListFragment.this.setListAdapter(RoomListFragment.this.roomListAdapter);

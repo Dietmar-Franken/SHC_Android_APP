@@ -1,6 +1,8 @@
 package de.rpi_controlcenter.shc.Service;
 
+import android.app.AlertDialog;
 import android.app.Service;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -24,6 +26,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.rpi_controlcenter.shc.Activity.SettingsActivity;
 import de.rpi_controlcenter.shc.Data.Room;
 import de.rpi_controlcenter.shc.Data.RoomElement;
 
@@ -148,9 +151,8 @@ public class SHCConnectorService extends Service {
 
         } catch (Exception ex) {
 
-            ex.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     /**
@@ -170,6 +172,13 @@ public class SHCConnectorService extends Service {
 
                 //JSON String laden
                 String jsonStr = getJsonFromShcMaster("a&ajax=roomsjson");
+
+                //Fehlerüberwachung
+                if(jsonStr == null) {
+
+                    //Fehler aufgetreten
+                    return null;
+                }
 
                 if(jsonStr != null) {
 
@@ -218,6 +227,13 @@ public class SHCConnectorService extends Service {
 
                 //JSON String laden
                 String jsonStr = getJsonFromShcMaster("a&ajax=roomelementsjson&id=" + roomId);
+
+                //Fehlerüberwachung
+                if(jsonStr == null) {
+
+                    //Fehler aufgetreten
+                    return null;
+                }
 
                 if(jsonStr != null) {
 

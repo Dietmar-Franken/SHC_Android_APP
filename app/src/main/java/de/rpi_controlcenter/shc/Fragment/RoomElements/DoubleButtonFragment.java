@@ -53,15 +53,18 @@ public class DoubleButtonFragment extends Fragment {
         super.onStart();
 
         //Elemente laden
-        LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.roomViewLayoutContainer);
-        onButton = (Button) linearLayout.findViewById(R.id.element_onButton);
-        onButton.setId(ON_BUTTON);
-        offButton = (Button) linearLayout.findViewById(R.id.element_offButton);
-        offButton.setId(OFF_BUTTON);
-        nameView = (TextView) linearLayout.findViewById(R.id.element_name);
-        nameView.setId(NAME_TEXT_VIEW);
-        iconView = (ImageView) linearLayout.findViewById(R.id.element_icon);
-        iconView.setId(ICON_IMAGE_VIEW);
+        if(nameView == null) {
+
+            LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.roomViewLayoutContainer);
+            onButton = (Button) linearLayout.findViewById(R.id.element_onButton);
+            onButton.setId(ON_BUTTON);
+            offButton = (Button) linearLayout.findViewById(R.id.element_offButton);
+            offButton.setId(OFF_BUTTON);
+            nameView = (TextView) linearLayout.findViewById(R.id.element_name);
+            nameView.setId(NAME_TEXT_VIEW);
+            iconView = (ImageView) linearLayout.findViewById(R.id.element_icon);
+            iconView.setId(ICON_IMAGE_VIEW);
+        }
 
         //Raum Element Daten holen
         Bundle args = getArguments();
@@ -121,12 +124,12 @@ public class DoubleButtonFragment extends Fragment {
                         if (error.equals("")) {
 
                             //kein Fehler
-                            Toast.makeText(v.getContext(), "Befehl gesendet", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(v.getContext(), R.string.errors_sendCommand_succsess, Toast.LENGTH_SHORT).show();
                             getArguments().putInt("state", 1);
                             updateState();
                         } else {
 
-                            Toast.makeText(v.getContext(), "Fehler: " + error, Toast.LENGTH_LONG).show();
+                            Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -146,12 +149,12 @@ public class DoubleButtonFragment extends Fragment {
                         if (error.equals("")) {
 
                             //kein Fehler
-                            Toast.makeText(v.getContext(), "Befehl gesendet", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(v.getContext(), R.string.errors_sendCommand_succsess, Toast.LENGTH_SHORT).show();
                             getArguments().putInt("state", 0);
                             updateState();
                         } else {
 
-                            Toast.makeText(v.getContext(), "Fehler: " + error, Toast.LENGTH_LONG).show();
+                            Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
                         }
                     }
                 });
