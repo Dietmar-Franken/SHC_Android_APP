@@ -1,0 +1,48 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    tools:context="de.rpi_controlcenter.shc.Fragment.RoomElements.DoubleButtonFragment"
+    android:padding="@dimen/element_mall_layout_padding">
+
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="match_parent"
+        android:src="@mipmap/input_state_low"
+        android:layout_marginRight="5dp"
+        android:id="@+id/element_icon" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:id="@+id/element_name"
+            android:textColor="#000000"
+            android:paddingLeft="10dp"
+            android:textSize="14dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/elements.text.state"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:id="@+id/element_state" />
+
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

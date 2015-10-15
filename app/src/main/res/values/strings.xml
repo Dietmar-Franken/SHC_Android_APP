@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">SHC</string>
+    <string name="mainActivity">Räume</string>
+    <string name="roomViewActivity">Raum</string>
+    <string name="settingsActivity">SHC Einstellungen</string>
+    <string name="action_reload">aktualisieren</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="labelOnline">online</string>
+    <string name="labelOffline">offline</string>
+    <string name="labelRooms">Räume</string>
+
+    <string name="settings.cat1">SHC Server</string>
+    <string name="settings.cat2">SHC Benutzer</string>
+    <string name="settings.ipaddress">IP Adresse</string>
+    <string name="settings.ipaddress.desc">IP-Adresse des SHC Master Servers</string>
+    <string name="settings.port">Port</string>
+    <string name="settings.port.desc">TCP Port des SHC Master Servers</string>
+    <string name="settings.location">Pfad</string>
+    <string name="settings.location.desc">Pfad des SHC auf dem Server (ohne Slash am Anfang und Ende)</string>
+    <string name="settings.user">Benutzer</string>
+    <string name="settings.user.desc">Benutzername des SHC Benutzers</string>
+    <string name="settings.password">Passwort</string>
+    <string name="settings.password.desc">Passwortd des SHC Benutzers</string>
+
+    <string name="elements.button.on">an</string>
+    <string name="elements.button.off">aus</string>
+    <string name="elements.button.up">oben</string>
+    <string name="elements.button.down">unten</string>
+    <string name="elements.button.open">auf</string>
+    <string name="elements.button.close">zu</string>
+    <string name="elements.button.start">start</string>
+    <string name="elements.button.stop">stop</string>
+    <string name="elements.button.reboot">Neustart</string>
+    <string name="elements.button.shutdown">Herunterfahren</string>
+    <string name="elements.button.reconnect">Reconnect</string>
+
+    <string name="elements.text.temp">Temperatur: </string>
+    <string name="elements.text.power">Leistung: </string>
+    <string name="elements.text.energy">Energie: </string>
+    <string name="elements.text.hum">Luftfeuchte: </string>
+    <string name="elements.text.press">Luftfdruck: </string>
+    <string name="elements.text.alti">Höhe: </string>
+    <string name="elements.text.moisture">Feuchtigkeit: </string>
+    <string name="elements.text.lightIntenisity">Lichtstärke: </string>
+    <string name="elements.text.state">Status: </string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

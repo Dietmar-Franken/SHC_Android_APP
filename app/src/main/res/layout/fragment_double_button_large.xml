@@ -1,0 +1,58 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    tools:context="de.rpi_controlcenter.shc.Fragment.RoomElements.DoubleButtonFragment"
+    android:padding="@dimen/element_mall_layout_padding">
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:layout_marginTop="18dp"
+        android:text=""
+        android:id="@+id/element_name"
+        android:textColor="#000000"
+        android:textSize="14dp"
+        android:gravity="right"
+        android:textAlignment="gravity"
+        android:paddingRight="10dp" />
+
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="match_parent"
+        android:src="@mipmap/lamp"
+        android:layout_marginRight="5dp"
+        android:id="@+id/element_icon" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/elements.button.on"
+                android:id="@+id/element_onButton"
+                android:drawableLeft="@mipmap/check"
+                android:textAllCaps="false" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/elements.button.off"
+                android:id="@+id/element_offButton"
+                android:textAllCaps="false" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

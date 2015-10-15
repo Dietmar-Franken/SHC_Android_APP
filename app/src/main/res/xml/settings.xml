@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="@string/settings.cat1">
+
+        <EditTextPreference
+            android:key="shc.serverIpAddress"
+            android:title="@string/settings.ipaddress"
+            android:summary="@string/settings.ipaddress.desc"
+            android:inputType="number|numberDecimal"
+            android:digits="0123456789."
+            android:maxLength="15"
+            android:defaultValue="127.0.0.1"/>
+        <EditTextPreference
+            android:key="shc.serverPort"
+            android:title="@string/settings.port"
+            android:summary="@string/settings.port.desc"
+            android:maxLength="5"
+            android:inputType="number"
+            android:digits="0123456789"
+            android:defaultValue="80" />
+        <EditTextPreference
+            android:key="shc.location"
+            android:title="@string/settings.location"
+            android:summary="@string/settings.location.desc"
+            android:maxLength="50"
+            android:defaultValue="shc" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/settings.cat2">
+        <EditTextPreference
+            android:key="shc.user"
+            android:title="@string/settings.user"
+            android:summary="@string/settings.user.desc"
+            android:maxLength="50"
+            android:defaultValue="" />
+        <EditTextPreference
+            android:key="shc.password"
+            android:title="@string/settings.password"
+            android:summary="@string/settings.password.desc"
+            android:maxLength="25"
+            android:inputType="textPassword"
+            android:defaultValue="" />
+    </PreferenceCategory>
+</PreferenceScreen>
