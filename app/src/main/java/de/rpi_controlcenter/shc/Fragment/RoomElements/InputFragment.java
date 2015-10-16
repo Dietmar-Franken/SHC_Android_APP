@@ -83,7 +83,7 @@ public class InputFragment extends Fragment {
         } else {
 
             stateView.setText(R.string.elements_button_off);
-            iconView.setImageResource(R.mipmap.input_state_high);
+            iconView.setImageResource(R.mipmap.input_state_low);
         }
     }
 }

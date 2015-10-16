@@ -7,13 +7,17 @@ import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.rpi_controlcenter.shc.Activity.SettingsActivity;
 import de.rpi_controlcenter.shc.Data.RoomElement;
@@ -37,7 +41,9 @@ public class RoomViewFragment extends Fragment {
 
     private LinearLayout roomViewLayout = null;
 
-    private List<Fragment> fragmentList = new ArrayList<>();
+    private Map<String, Fragment> fragmentList = new HashMap<>();
+
+    private Thread syncThread;
 
     public RoomViewFragment() {
         // Required empty public constructor
@@ -55,8 +61,130 @@ public class RoomViewFragment extends Fragment {
         super.onStart();
 
         roomViewLayout = (LinearLayout) getActivity().findViewById(R.id.roomViewLayoutContainer);
+    }
 
-        //TODO Sync Task implementieren der die Anzeige jede Sekunde aktualisiert
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        final Handler handler = new Handler();
+        syncThread = new Thread() {
+
+            @Override
+            public void run() {
+
+                SHCConnectorService service = ((BoundetShcService) getActivity()).getShcConnectorService();
+                while (!isInterrupted()) {
+
+                    //Wartezeit
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+
+                        interrupt();
+                    }
+
+                    //Synchronisieren
+                    service.sync(getArguments().getInt("roomID"), new SHCConnectorService.SyncCallback() {
+
+                        @Override
+                        public void syncFinished(final List<RoomElement> roomElements) {
+
+                            handler.post(new Runnable() {
+
+                                @Override
+                                public void run() {
+
+                                    //Fehler beim Syncronisieren
+                                    if(roomElements == null) {
+
+                                        Toast.makeText(getActivity(), R.string.errors_syncError, Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+
+                                    //UI aktualisieren
+                                    for (RoomElement re : roomElements) {
+
+                                        //prüfen ob Element vorhanden
+                                        if (fragmentList.containsKey(re.getId())) {
+
+                                            Fragment f = fragmentList.get(re.getId());
+                                            if (f instanceof DoubleButtonFragment) {
+
+                                                //schaltbares element
+                                                Bundle args = f.getArguments();
+                                                args.putInt("state", re.getState());
+                                                ((DoubleButtonFragment) f).updateState();
+                                            } else if (f instanceof SingleButtonFragment) {
+
+                                                //WOL
+                                                Bundle args = f.getArguments();
+                                                args.putInt("state", re.getState());
+                                                ((SingleButtonFragment) f).updateWolState();
+                                            } else if (f instanceof InputFragment) {
+
+                                                //Eingang
+                                                Bundle args = f.getArguments();
+                                                args.putInt("state", re.getState());
+                                                ((InputFragment) f).updateData();
+                                            } else if (f instanceof AvmMeasuringSocketFragment) {
+
+                                                //AVM Steckdose
+                                                Bundle args = f.getArguments();
+                                                args.putString("temp", re.getData("temp"));
+                                                args.putString("power", re.getData("power"));
+                                                args.putString("energy", re.getData("energy"));
+                                                ((AvmMeasuringSocketFragment) f).updateData();
+                                            } else if (f instanceof BmpFragment) {
+
+                                                //BMP Sensor
+                                                Bundle args = f.getArguments();
+                                                args.putString("temp", re.getData("temp"));
+                                                args.putString("press", re.getData("press"));
+                                                args.putString("alti", re.getData("alti"));
+                                                ((BmpFragment) f).updateData();
+                                            } else if (f instanceof DhtFragment) {
+
+                                                //DHT Sensor
+                                                Bundle args = f.getArguments();
+                                                args.putString("temp", re.getData("temp"));
+                                                args.putString("hum", re.getData("hum"));
+                                                ((DhtFragment) f).updateData();
+                                            } else if (f instanceof DS18x20Fragment) {
+
+                                                //DS18x20 Sensor
+                                                Bundle args = f.getArguments();
+                                                args.putString("temp", re.getData("temp"));
+                                                args.putString("temp", re.getData("temp"));
+                                                ((DS18x20Fragment) f).updateData();
+                                            } else if (f instanceof SingleValueFragment) {
+
+                                                //DS18x20 Sensor
+                                                Bundle args = f.getArguments();
+                                                args.putString("val", re.getData("val"));
+                                                ((SingleValueFragment) f).updateData();
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        };
+        syncThread.start();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        //Synchronisierung anhalten
+        if(syncThread != null) {
+
+            syncThread.interrupt();
+        }
     }
 
     /**
@@ -132,7 +260,7 @@ public class RoomViewFragment extends Fragment {
                             //Fragment erzeugenund einfügen
                             f = new DoubleButtonFragment();
                             f.setArguments(args);
-                            fragmentList.add(f);
+                            fragmentList.put(re.getId(), f);
                             ft.add(R.id.roomViewLayoutContainer, f);
                             break;
                         case "Script":
@@ -148,7 +276,7 @@ public class RoomViewFragment extends Fragment {
                             //Fragment erzeugenund einfügen
                             f = new DoubleButtonFragment();
                             f.setArguments(args);
-                            fragmentList.add(f);
+                            fragmentList.put(re.getId(), f);
                             ft.add(R.id.roomViewLayoutContainer, f);
                             break;
                         case "FritzBox":
@@ -171,7 +299,7 @@ public class RoomViewFragment extends Fragment {
                                     //Fragment erzeugen und einfügen
                                     f = new DoubleButtonFragment();
                                     f.setArguments(args);
-                                    fragmentList.add(f);
+                                    fragmentList.put(re.getId(), f);
                                     ft.add(R.id.roomViewLayoutContainer, f);
                                     break;
                                 case "4":
@@ -182,7 +310,7 @@ public class RoomViewFragment extends Fragment {
                                     //Fragment erzeugenund einfügen
                                     f = new SingleButtonFragment();
                                     f.setArguments(args);
-                                    fragmentList.add(f);
+                                    fragmentList.put(re.getId(), f);
                                     ft.add(R.id.roomViewLayoutContainer, f);
                                 case "5":
 
@@ -192,7 +320,7 @@ public class RoomViewFragment extends Fragment {
                                     //Fragment erzeugenund einfügen
                                     f = new SingleButtonFragment();
                                     f.setArguments(args);
-                                    fragmentList.add(f);
+                                    fragmentList.put(re.getId(), f);
                                     ft.add(R.id.roomViewLayoutContainer, f);
                                     break;
                             }
@@ -212,7 +340,7 @@ public class RoomViewFragment extends Fragment {
                             //Fragment erzeugen und einfügen
                             f = new SingleButtonFragment();
                             f.setArguments(args);
-                            fragmentList.add(f);
+                            fragmentList.put(re.getId(), f);
                             ft.add(R.id.roomViewLayoutContainer, f);
                             break;
                         case "Input":
@@ -225,7 +353,7 @@ public class RoomViewFragment extends Fragment {
                             //Fragment erzeugen und einfügen
                             f = new InputFragment();
                             f.setArguments(args);
-                            fragmentList.add(f);
+                            fragmentList.put(re.getId(), f);
                             ft.add(R.id.roomViewLayoutContainer, f);
                             break;
                         case "AvmMeasuringSocket":
@@ -241,7 +369,7 @@ public class RoomViewFragment extends Fragment {
                             //Fragment erzeugenund einfügen
                             f = new AvmMeasuringSocketFragment();
                             f.setArguments(args);
-                            fragmentList.add(f);
+                            fragmentList.put(re.getId(), f);
                             ft.add(R.id.roomViewLayoutContainer, f);
                             break;
                         case "BMP":
@@ -257,7 +385,7 @@ public class RoomViewFragment extends Fragment {
                             //Fragment erzeugenund einfügen
                             f = new BmpFragment();
                             f.setArguments(args);
-                            fragmentList.add(f);
+                            fragmentList.put(re.getId(), f);
                             ft.add(R.id.roomViewLayoutContainer, f);
                             break;
                         case "DHT":
@@ -272,7 +400,7 @@ public class RoomViewFragment extends Fragment {
                             //Fragment erzeugenund einfügen
                             f = new DhtFragment();
                             f.setArguments(args);
-                            fragmentList.add(f);
+                            fragmentList.put(re.getId(), f);
                             ft.add(R.id.roomViewLayoutContainer, f);
                             break;
                         case "DS18x20":
@@ -286,7 +414,7 @@ public class RoomViewFragment extends Fragment {
                             //Fragment erzeugenund einfügen
                             f = new DS18x20Fragment();
                             f.setArguments(args);
-                            fragmentList.add(f);
+                            fragmentList.put(re.getId(), f);
                             ft.add(R.id.roomViewLayoutContainer, f);
                             break;
                         case "Hygrometer":
@@ -303,7 +431,7 @@ public class RoomViewFragment extends Fragment {
                             //Fragment erzeugenund einfügen
                             f = new SingleValueFragment();
                             f.setArguments(args);
-                            fragmentList.add(f);
+                            fragmentList.put(re.getId(), f);
                             ft.add(R.id.roomViewLayoutContainer, f);
                             break;
                         case "boxStart":
@@ -314,14 +442,14 @@ public class RoomViewFragment extends Fragment {
                             //Fragment erzeugenund einfügen
                             f = new BoxFragment();
                             f.setArguments(args);
-                            fragmentList.add(f);
+                            fragmentList.put(re.getId(), f);
                             ft.add(R.id.roomViewLayoutContainer, f);
                             break;
                         case "boxEnd":
 
                             //Fragment erzeugenund einfügen
                             f = new BoxFragment();
-                            fragmentList.add(f);
+                            fragmentList.put(re.getId(), f);
                             ft.add(R.id.roomViewLayoutContainer, f);
                             break;
                     }

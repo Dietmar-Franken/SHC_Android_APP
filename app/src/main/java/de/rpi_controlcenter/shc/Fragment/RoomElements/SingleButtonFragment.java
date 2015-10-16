@@ -121,11 +121,10 @@ public class SingleButtonFragment extends Fragment {
     public void updateWolState() {
 
         Bundle args = getArguments();
-        if(args.containsKey("state") && args.getInt("state") == 1) {
+        if(args.getString("type").equals("WakeOnLan") && args.containsKey("state") && args.getInt("state") == 1) {
 
             iconView.setImageResource(R.mipmap.wol_state_online);
         } else {
-
             iconView.setImageResource(R.mipmap.wol_state_offline);
         }
     }

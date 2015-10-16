@@ -8,8 +8,10 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -23,12 +25,17 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import de.rpi_controlcenter.shc.Activity.SettingsActivity;
 import de.rpi_controlcenter.shc.Data.Room;
 import de.rpi_controlcenter.shc.Data.RoomElement;
+import de.rpi_controlcenter.shc.R;
 
 public class SHCConnectorService extends Service {
 
@@ -86,6 +93,8 @@ public class SHCConnectorService extends Service {
     // Binder Initalisieren
     private IBinder shcConnectorBinder = new SHCConnectorBinder();
 
+    private String sessionId;
+
     @Override
     public IBinder onBind(Intent intent) {
 
@@ -124,13 +133,30 @@ public class SHCConnectorService extends Service {
         HttpClient client = new DefaultHttpClient();
         HttpGet httpGet = new HttpGet(url.toString());
 
+        //Session Cookie setzen
+        if(sessionId != null && !sessionId.equals("")) {
+
+            httpGet.addHeader("Cookie", "rwf_session=" + sessionId);
+        }
+
         try {
 
             HttpResponse response = client.execute(httpGet);
             StatusLine statusLine = response.getStatusLine();
             int statusCode = statusLine.getStatusCode();
-
             if(statusCode == 200) {
+
+                //Cookies verarbeiten
+                Header[] cookies = response.getHeaders("Set-Cookie");
+                for(int i = 0; i < cookies.length; i++) {
+
+                    if(cookies[i].getValue().startsWith("rwf_session=")) {
+
+                        sessionId = cookies[i].getValue().replace("rwf_session=", "").substring(0, 64).trim();
+                        System.out.println(sessionId);
+                        break;
+                    }
+                }
 
                 //Anfrage erfolgreich
                 HttpEntity entity = response.getEntity();
@@ -178,9 +204,7 @@ public class SHCConnectorService extends Service {
 
                     //Fehler aufgetreten
                     return null;
-                }
-
-                if(jsonStr != null) {
+                } else {
 
                     try {
 
@@ -233,9 +257,7 @@ public class SHCConnectorService extends Service {
 
                     //Fehler aufgetreten
                     return null;
-                }
-
-                if(jsonStr != null) {
+                } else {
 
                     try {
 
@@ -438,14 +460,186 @@ public class SHCConnectorService extends Service {
     }
 
     /**
-     * ruft die Sync Daten eines Raumes ab
+     * ruft die Sync Daten eines Raumes ab (läuft in dem Thread in dem es gestartet wurde
      *
      * @param roomId Raum ID
-     * @param callback Callback wird aufgerufen wenn die Daten vorliegen
+     * @param callback Callback nach dem Synchronisieren
      */
     public void sync(final int roomId, final SyncCallback callback) {
 
-        //TODO laden der Sync Daten implementieren
+        new AsyncTask<Void, Void, List<RoomElement>>() {
+
+            @Override
+            protected List<RoomElement> doInBackground(Void... params) {
+
+                //JSON String laden
+                String jsonStr = getJsonFromShcMaster("a&ajax=roomsync&id=" + roomId);
+
+                //Fehlerüberwachung
+                if(jsonStr == null) {
+
+                    //Fehler aufgetreten
+                    return null;
+                } else {
+
+                    try {
+
+                        JSONObject jsonObject = new JSONObject(jsonStr);
+                        if(jsonObject.getBoolean("success")) {
+
+                            //Erfolgreich
+                            List<RoomElement> syncList = new ArrayList<>();
+                            RoomElement re;
+                            String key;
+                            Iterator<String> iterator;
+
+                            //Daten Einlesen
+                            //Schaltbare Elemente
+                            JSONObject switchables = jsonObject.optJSONObject("switchables");
+                            if(switchables != null) {
+
+                                iterator = switchables.keys();
+                                while(iterator.hasNext()) {
+
+                                    key = iterator.next();
+                                    re = new RoomElement();
+                                    re.setId(key);
+                                    re.setState(switchables.getInt(key));
+                                    syncList.add(re);
+                                }
+                            }
+
+                            //WOL
+                            JSONObject wol = jsonObject.optJSONObject("wol");
+                            if(wol != null) {
+
+                                iterator = wol.keys();
+                                while(iterator.hasNext()) {
+
+                                    key = iterator.next();
+                                    re = new RoomElement();
+                                    re.setId(key);
+                                    re.setState(wol.getInt(key));
+                                    syncList.add(re);
+                                }
+                            }
+
+                            //lesbare Elemente
+                            JSONObject readables = jsonObject.optJSONObject("readables");
+                            if(readables != null) {
+
+                                iterator = readables.keys();
+                                while(iterator.hasNext()) {
+
+                                    key = iterator.next();
+                                    re = new RoomElement();
+                                    re.setId(key);
+                                    re.setState(readables.getInt(key));
+                                    syncList.add(re);
+                                }
+                            }
+
+                            //DS18B20 Sensoren
+                            JSONObject ds18x20 = jsonObject.optJSONObject("ds18x20");
+                            if(ds18x20 != null) {
+
+                                iterator = ds18x20.keys();
+                                while(iterator.hasNext()) {
+
+                                    key = iterator.next();
+                                    re = new RoomElement();
+                                    re.setId(key);
+                                    re.addData("temp", ds18x20.getJSONObject(key).getString("temp"));
+                                    syncList.add(re);
+                                }
+                            }
+
+                            //DHT Sensoren
+                            JSONObject dht = jsonObject.optJSONObject("dht");
+                            if(dht != null) {
+
+                                iterator = dht.keys();
+                                while(iterator.hasNext()) {
+
+                                    key = iterator.next();
+                                    re = new RoomElement();
+                                    re.setId(key);
+                                    re.addData("temp", dht.getJSONObject(key).getString("temp"));
+                                    re.addData("hum", dht.getJSONObject(key).getString("hum"));
+                                    syncList.add(re);
+                                }
+                            }
+
+                            //DHT Sensoren
+                            JSONObject bmp = jsonObject.optJSONObject("bmp");
+                            if(bmp != null) {
+
+                                iterator = bmp.keys();
+                                while(iterator.hasNext()) {
+
+                                    key = iterator.next();
+                                    re = new RoomElement();
+                                    re.setId(key);
+                                    re.addData("temp", bmp.getJSONObject(key).getString("temp"));
+                                    re.addData("press", bmp.getJSONObject(key).getString("press"));
+                                    re.addData("alti", bmp.getJSONObject(key).getString("alti"));
+                                    syncList.add(re);
+                                }
+                            }
+
+                            //Analog Sensoren
+                            JSONObject analog = jsonObject.optJSONObject("analog");
+                            if(analog != null) {
+
+                                iterator = analog.keys();
+                                while(iterator.hasNext()) {
+
+                                    key = iterator.next();
+                                    re = new RoomElement();
+                                    re.setId(key);
+                                    re.addData("val", analog.getJSONObject(key).getString("value"));
+                                    syncList.add(re);
+                                }
+                            }
+
+                            //DHT Sensoren
+                            JSONObject avmSocket = jsonObject.optJSONObject("syncAvmPowerSocket");
+                            if(avmSocket != null) {
+
+                                iterator = avmSocket.keys();
+                                while(iterator.hasNext()) {
+
+                                    key = iterator.next();
+                                    re = new RoomElement();
+                                    re.setId(key);
+                                    re.addData("temp", avmSocket.getJSONObject(key).getString("temp"));
+                                    re.addData("power", avmSocket.getJSONObject(key).getString("power"));
+                                    re.addData("energy", avmSocket.getJSONObject(key).getString("energy"));
+                                    syncList.add(re);
+                                }
+                            }
+
+                            return syncList;
+                        } else {
+
+                            //Fehler
+                            return null;
+                        }
+
+                    } catch (JSONException e) {
+
+                        return null;
+                    }
+                }
+            }
+
+            @Override
+            protected void onPostExecute(List<RoomElement> roomElements) {
+                super.onPostExecute(roomElements);
+
+                callback.syncFinished(roomElements);
+            }
+        }.execute();
     }
 
     public void sendOnCommand(final String elementId, final CommandExecutedEvent event) {

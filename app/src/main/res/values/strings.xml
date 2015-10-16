@@ -49,6 +49,8 @@
     <string name="errors.nocConnection.settings">Einstellungen</string>
     <string name="errors.nocConnection.exit">Beenden</string>
 
+    <string name="errors.syncError">Fehler beim Synchronisieren</string>
+
     <string name="errors.sendCommand.succsess">Befehl erfolgreich gesenden</string>
     <string name="errors.sendCommand.error">Fehler: </string>
 </resources>
