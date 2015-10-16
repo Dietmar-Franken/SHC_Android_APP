@@ -153,7 +153,6 @@ public class SHCConnectorService extends Service {
                     if(cookies[i].getValue().startsWith("rwf_session=")) {
 
                         sessionId = cookies[i].getValue().replace("rwf_session=", "").substring(0, 64).trim();
-                        System.out.println(sessionId);
                         break;
                     }
                 }
