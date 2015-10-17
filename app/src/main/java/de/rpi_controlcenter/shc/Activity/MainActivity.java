@@ -4,18 +4,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.List;
-
-import de.rpi_controlcenter.shc.Data.RoomElement;
-import de.rpi_controlcenter.shc.Fragment.RoomElements.BoxFragment;
 import de.rpi_controlcenter.shc.Fragment.RoomListFragment;
 import de.rpi_controlcenter.shc.Fragment.RoomViewFragment;
 import de.rpi_controlcenter.shc.Interface.BoundetShcService;
