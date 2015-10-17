@@ -117,10 +117,15 @@ public class MainActivity extends AppCompatActivity implements BoundetShcService
         if (id == R.id.action_reload) {
 
             //Raum Liste aktualisieren
-            roomListFragment.updateRoomData();
-            if(useTabletView) {
+            if(useTabletView && dataService != null) {
 
                 roomViewFragment.updateRoomData(dataService);
+            } else if(useTabletView) {
+
+                bindDataService();
+            } else {
+
+                roomListFragment.updateRoomData();
             }
             return true;
         } else if (id == R.id.action_settings) {
