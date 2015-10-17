@@ -62,9 +62,12 @@ public class RoomViewFragment extends Fragment {
         roomViewLayout = (LinearLayout) getActivity().findViewById(R.id.roomViewLayoutContainer);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+    /**
+     * startet den Syc Thread
+     *
+     * @param service
+     */
+    public void startSync(final SHCConnectorService service) {
 
         final Handler handler = new Handler();
         syncThread = new Thread() {
@@ -72,7 +75,6 @@ public class RoomViewFragment extends Fragment {
             @Override
             public void run() {
 
-                SHCConnectorService service = ((BoundetShcService) getActivity()).getShcConnectorService();
                 while (!isInterrupted()) {
 
                     //Wartezeit

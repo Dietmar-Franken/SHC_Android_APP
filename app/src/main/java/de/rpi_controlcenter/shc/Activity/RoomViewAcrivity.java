@@ -31,6 +31,7 @@ public class RoomViewAcrivity extends AppCompatActivity implements BoundetShcSer
 
             dataService = ((SHCConnectorService.SHCConnectorBinder) service).getSHCConnectorService();
             roomViewFragment.updateRoomData(dataService);
+            roomViewFragment.startSync(dataService);
         }
 
         @Override
@@ -47,15 +48,15 @@ public class RoomViewAcrivity extends AppCompatActivity implements BoundetShcSer
 
         bindDataService();
 
-        //Titel der Action Bar setzen
-        //getActionBar().setTitle(getIntent().getStringExtra("roomName"));
-
         //Fragment erzeugen
         roomViewFragment = new RoomViewFragment();
         Bundle bundle = new Bundle();
         bundle.putInt("roomID", getIntent().getIntExtra("roomID", 0));
         roomViewFragment.setArguments(bundle);
         getFragmentManager().beginTransaction().replace(R.id.roomViewPlaceHolder, roomViewFragment).commit();
+
+        getSupportActionBar().setTitle(getIntent().getStringExtra("roomName"));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

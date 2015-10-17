@@ -35,7 +35,13 @@ public class MainActivity extends AppCompatActivity implements BoundetShcService
         public void onServiceConnected(ComponentName name, IBinder service) {
 
             dataService = ((SHCConnectorService.SHCConnectorBinder) service).getSHCConnectorService();
-            roomListFragment.updateRoomData(true);
+            roomListFragment.updateRoomData(useTabletView);
+
+            //Action Bar
+            if(useTabletView == false) {
+
+                getSupportActionBar().setTitle(R.string.labelRooms);
+            }
         }
 
         @Override
@@ -78,6 +84,10 @@ public class MainActivity extends AppCompatActivity implements BoundetShcService
 
                     //Daten laden
                     roomViewFragment.updateRoomData(dataService);
+                    roomViewFragment.startSync(dataService);
+
+                    //Titel der Action Bar setzen
+                    getSupportActionBar().setTitle(roomName);
                 } else {
 
                     //Eigene Activity starten
