@@ -124,7 +124,7 @@ public class SingleButtonFragment extends Fragment {
         if(args.getString("type").equals("WakeOnLan") && args.containsKey("state") && args.getInt("state") == 1) {
 
             iconView.setImageResource(R.mipmap.wol_state_online);
-        } else {
+        } else if(args.getString("type").equals("WakeOnLan")) {
             iconView.setImageResource(R.mipmap.wol_state_offline);
         }
     }
