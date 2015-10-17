@@ -105,9 +105,9 @@ public class SHCConnectorService extends Service {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
         //Einstellungen initslisieren
-        String address = sp.getString("shc.serverIpAddress", "127.0.0.1");
-        String port = sp.getString("shc.serverPort", "80");
-        String location = sp.getString("shc.location", "shc");
+        String address = sp.getString("shc.serverIpAddress", "127.0.0.1").trim();
+        String port = sp.getString("shc.serverPort", "80").trim();
+        String location = sp.getString("shc.location", "shc").trim();
 
         //URL vorbereiten
         StringBuilder url = new StringBuilder();
