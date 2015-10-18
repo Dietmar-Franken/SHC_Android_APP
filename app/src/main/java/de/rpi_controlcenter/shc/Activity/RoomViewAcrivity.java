@@ -75,7 +75,7 @@ public class RoomViewAcrivity extends AppCompatActivity implements BoundetShcSer
         if (id == R.id.action_reload) {
 
             //Raum Liste aktualisieren
-            roomViewFragment.updateRoomData(dataService);
+            roomViewFragment.updateRoomData(dataService, true);
             return true;
         } else if (id == R.id.action_settings) {
 
@@ -98,7 +98,7 @@ public class RoomViewAcrivity extends AppCompatActivity implements BoundetShcSer
     public void onStop() {
         super.onStop();
 
-        bindDataService();
+        unbindDataService();
     }
 
     /**

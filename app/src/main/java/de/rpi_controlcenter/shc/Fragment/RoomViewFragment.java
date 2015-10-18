@@ -195,6 +195,17 @@ public class RoomViewFragment extends Fragment {
      */
     public void updateRoomData(SHCConnectorService service) {
 
+        this.updateRoomData(service, false);
+    }
+
+    /**
+     * Fragt die Liste der Elemente eines Raumes ab
+     *
+     * @param service
+     * @param force bei True werden immer neue Daten vom Server abgerufen
+     */
+    public void updateRoomData(SHCConnectorService service, final boolean force) {
+
         int roomId = getArguments().getInt("roomID");
 
         SHCConnectorService.RoomElementsCallback callback = new SHCConnectorService.RoomElementsCallback() {
@@ -463,10 +474,10 @@ public class RoomViewFragment extends Fragment {
 
         if(service != null) {
 
-            service.updateRoomElementList(roomId, callback);
+            service.updateRoomElementList(roomId, callback, force);
         } else {
 
-            ((BoundetShcService) getActivity()).getShcConnectorService().updateRoomElementList(roomId, callback);
+            ((BoundetShcService) getActivity()).getShcConnectorService().updateRoomElementList(roomId, callback, force);
         }
     }
 }

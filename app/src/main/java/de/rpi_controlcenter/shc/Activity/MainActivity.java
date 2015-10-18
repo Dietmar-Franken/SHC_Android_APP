@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements BoundetShcService
         public void onServiceConnected(ComponentName name, IBinder service) {
 
             dataService = ((SHCConnectorService.SHCConnectorBinder) service).getSHCConnectorService();
-            roomListFragment.updateRoomData(useTabletView);
+            roomListFragment.updateRoomData(useTabletView, true);
 
             //Action Bar
             if(useTabletView == false) {
@@ -119,12 +119,12 @@ public class MainActivity extends AppCompatActivity implements BoundetShcService
             //Raum Liste aktualisieren
             if(useTabletView && dataService != null) {
 
-                roomViewFragment.updateRoomData(dataService);
+                roomViewFragment.updateRoomData(dataService, true);
             } else if(useTabletView) {
 
                 bindDataService();
             }
-            roomListFragment.updateRoomData();
+            roomListFragment.updateRoomData(false, true);
             return true;
         } else if (id == R.id.action_settings) {
 
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements BoundetShcService
     public void onStop() {
         super.onStop();
 
-        bindDataService();
+        unbindDataService();
     }
 
     /**

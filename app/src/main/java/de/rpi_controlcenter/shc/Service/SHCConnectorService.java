@@ -33,8 +33,10 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import de.rpi_controlcenter.shc.Data.Room;
 import de.rpi_controlcenter.shc.Data.RoomElement;
@@ -97,6 +99,10 @@ public class SHCConnectorService extends Service {
 
     private String sessionId;
 
+    private List<Room> roomsCache;
+
+    private Map<Integer, List<RoomElement>> roomElementsCache = new HashMap<>();
+
     @Override
     public IBinder onBind(Intent intent) {
 
@@ -120,7 +126,6 @@ public class SHCConnectorService extends Service {
         String location = sp.getString("shc.location", "shc").replace(" ", "");
         String user = sp.getString("shc.user", "shc").trim();
         String password = sp.getString("shc.password", "shc").trim();
-
 
         //URL vorbereiten
         StringBuilder url = new StringBuilder();
@@ -196,14 +201,31 @@ public class SHCConnectorService extends Service {
     /**
      * lädt die Liste der Räume vom SHC Server
      *
-     * @param callback
+     * @param callback wird Aufgerufen nach dem laden der Daten
      */
     public void updateRoomList(final RoomListCallback callback) {
+
+        this.updateRoomList(callback, false);
+    }
+
+    /**
+     * lädt die Liste der Räume vom SHC Server
+     *
+     * @param callback wird Aufgerufen nach dem laden der Daten
+     * @param force bei True werden immer neue Daten vom Server abgerufen
+     */
+    public void updateRoomList(final RoomListCallback callback, final boolean force) {
 
         new AsyncTask<Void, Void, List<Room>>() {
 
             @Override
             protected List<Room> doInBackground(Void... params) {
+
+                //pruefen ob die Anfrage aus dem Cache bedient werden kann
+                if(force == false && roomsCache != null && roomsCache.size() > 0) {
+
+                    return roomsCache;
+                }
 
                 //Räume Liste vorbereiten
                 List<Room> rooms = new ArrayList<Room>();
@@ -232,6 +254,7 @@ public class SHCConnectorService extends Service {
                         return rooms;
                     }
                 }
+                roomsCache = rooms;
                 return rooms;
             }
 
@@ -253,10 +276,28 @@ public class SHCConnectorService extends Service {
      */
     public void updateRoomElementList(final int roomId, final RoomElementsCallback callback) {
 
+        this.updateRoomElementList(roomId, callback, false);
+    }
+
+    /**
+     * lädt die Liste aller Elemente eines Raumes
+     *
+     * @param roomId ID des Raumes
+     * @param callback
+     * @param force bei True werden immer neue Daten vom Server abgerufen
+     */
+    public void updateRoomElementList(final int roomId, final RoomElementsCallback callback, final boolean force) {
+
         new AsyncTask<Void, Void, List<RoomElement>>() {
 
             @Override
             protected List<RoomElement> doInBackground(Void... params) {
+
+                //pruefen ob die Anfrage aus dem Cache bedient werden kann
+                if(force == false && roomElementsCache != null && roomElementsCache.containsKey(roomId) && roomElementsCache.get(roomId).size() > 0) {
+
+                    return roomElementsCache.get(roomId);
+                }
 
                 //Räume Liste vorbereiten
                 List<RoomElement> roomElements = new ArrayList<RoomElement>();
@@ -459,6 +500,7 @@ public class SHCConnectorService extends Service {
                         return roomElements;
                     }
                 }
+                roomElementsCache.put(roomId, roomElements);
                 return roomElements;
             }
 

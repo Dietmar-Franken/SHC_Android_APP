@@ -52,15 +52,16 @@ public class RoomListFragment extends ListFragment {
      */
     public void updateRoomData() {
 
-        this.updateRoomData(false);
+        this.updateRoomData(false, false);
     }
 
     /**
      * Fragt die Räume vom SHC Server ab und
      *
      * @param clickFirstElemnet Feuert nach dem laden automatisch ein Ereignis welches den ersten Raum selektiert
+     * @param force bei True werden immer neue Daten vom Server abgerufen
      */
-    public void updateRoomData(final boolean clickFirstElemnet) {
+    public void updateRoomData(final boolean clickFirstElemnet, final boolean force) {
 
         //Update der Liste anstoßen
         ((BoundetShcService) getActivity()).getShcConnectorService().updateRoomList(new SHCConnectorService.RoomListCallback() {
@@ -100,7 +101,7 @@ public class RoomListFragment extends ListFragment {
                     RoomListFragment.this.clickFirstListElement();
                 }
             }
-        });
+        }, force);
     }
 
     public void setRoomListItemClickListender(RoomListItemClicked roomListItemClickListender) {
