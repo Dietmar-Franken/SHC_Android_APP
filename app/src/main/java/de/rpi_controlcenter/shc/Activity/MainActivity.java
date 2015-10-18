@@ -123,10 +123,8 @@ public class MainActivity extends AppCompatActivity implements BoundetShcService
             } else if(useTabletView) {
 
                 bindDataService();
-            } else {
-
-                roomListFragment.updateRoomData();
             }
+            roomListFragment.updateRoomData();
             return true;
         } else if (id == R.id.action_settings) {
 
