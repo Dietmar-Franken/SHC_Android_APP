@@ -20,9 +20,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -105,9 +115,12 @@ public class SHCConnectorService extends Service {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
         //Einstellungen initslisieren
-        String address = sp.getString("shc.serverIpAddress", "127.0.0.1").trim();
-        String port = sp.getString("shc.serverPort", "80").trim();
-        String location = sp.getString("shc.location", "shc").trim();
+        String address = sp.getString("shc.serverIpAddress", "127.0.0.1").replace(" ", "");
+        String port = sp.getString("shc.serverPort", "80").replace(" ", "");
+        String location = sp.getString("shc.location", "shc").replace(" ", "");
+        String user = sp.getString("shc.user", "shc").trim();
+        String password = sp.getString("shc.password", "shc").trim();
+
 
         //URL vorbereiten
         StringBuilder url = new StringBuilder();
@@ -118,58 +131,66 @@ public class SHCConnectorService extends Service {
         url.append("/");
         url.append(location);
         url.append("/index.php?app=shc&");
-        url.append(uri);
 
-        //HTTP Anfrage
-        StringBuilder builder = new StringBuilder();
-        HttpClient client = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet(url.toString());
+        //Benutzeranmeldung
+        if(!user.equals("") && !password.equals("")) {
 
-        //Session Cookie setzen
-        if(sessionId != null && !sessionId.equals("")) {
+            try {
 
-            httpGet.addHeader("Cookie", "rwf_session=" + sessionId);
+                url.append("user=");
+                url.append(URLEncoder.encode(user, "UTF-8"));
+                url.append("&password=");
+                url.append(URLEncoder.encode(password, "UTF-8"));
+                url.append("&");
+            } catch (UnsupportedEncodingException e) {}
         }
+        url.append(uri);
 
         try {
 
-            HttpResponse response = client.execute(httpGet);
-            StatusLine statusLine = response.getStatusLine();
-            int statusCode = statusLine.getStatusCode();
-            if(statusCode == 200) {
+            //Cookie Handler initalisieren
+            CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
 
-                //Cookies verarbeiten
-                Header[] cookies = response.getHeaders("Set-Cookie");
-                for(int i = 0; i < cookies.length; i++) {
+            //Verbindung initalisieren
+            StringBuilder response = new StringBuilder();
+            URLConnection connection = new URL(url.toString()).openConnection();
+            connection.setRequestProperty("Accept-Charset", "UTF-8");
+            connection.setRequestProperty("User-Agent", "SHC Android App");
 
-                    if(cookies[i].getValue().startsWith("rwf_session=")) {
+            //Session Cookie setzen
+            if(sessionId != null && !sessionId.equals("")) {
 
-                        sessionId = cookies[i].getValue().replace("rwf_session=", "").substring(0, 64).trim();
+                connection.setRequestProperty("Cookie", "rwf_session=" + sessionId);
+            }
+
+            //Cookies lesen
+            List<String> cookies = connection.getHeaderFields().get("Set-Cookie");
+            if(cookies != null) {
+
+                for(String cookie : cookies) {
+
+                    if(cookie.startsWith("rwf_session=")) {
+
+                        sessionId = cookie.replace("rwf_session=", "").substring(0, 64).trim();
                         break;
                     }
                 }
-
-                //Anfrage erfolgreich
-                HttpEntity entity = response.getEntity();
-                InputStream content = entity.getContent();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(content));
-                String line;
-                while((line = reader.readLine()) != null){
-                    builder.append(line);
-                }
-
-                //JSON String zurueck geben
-                return builder.toString();
-            } else {
-
-                //Anfrage Fehlgeschlagen
-                return null;
             }
 
-        } catch (Exception ex) {
+            InputStream responseStream = connection.getInputStream();
+            BufferedReader bufferedResponsse = new BufferedReader(new InputStreamReader(responseStream));
 
-            return null;
+            //Eigabedaten lesen
+            String line;
+            while((line = bufferedResponsse.readLine()) != null){
+                response.append(line);
+            }
+
+            return response.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
     /**
