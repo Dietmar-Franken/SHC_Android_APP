@@ -1,10 +1,14 @@
 <resources>
+    <string name="displayVersion">0.5.3</string>
+
     <string name="app_name">SHC</string>
     <string name="mainActivity">Räume</string>
     <string name="roomViewActivity">Raum</string>
     <string name="settingsActivity">SHC Einstellungen</string>
+    <string name="infoActivity">Über das SHC</string>
     <string name="action_reload">aktualisieren</string>
     <string name="action_settings">Einstellungen</string>
+    <string name="action_info">Info</string>
     <string name="labelOnline">online</string>
     <string name="labelOffline">offline</string>
     <string name="labelRooms">Räume</string>
@@ -53,4 +57,13 @@
 
     <string name="errors.sendCommand.succsess">Befehl erfolgreich gesenden</string>
     <string name="errors.sendCommand.error">Fehler: </string>
+
+    <string name="info.appVersion">APP Version</string>
+    <string name="info.developer">Entwickler</string>
+    <string name="info.developer.name">Oliver Kleditzsch</string>
+    <string name="info.project.side">Projektseite</string>
+    <string name="info.project.side.url"><u>Webseite</u></string>
+    <string name="info.project.licence">Lizenzhinweise</string>
+    <string name="info.project.licence.url"><u>GNU Public License</u></string>
+
 </resources>

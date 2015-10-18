@@ -83,6 +83,12 @@ public class RoomViewAcrivity extends AppCompatActivity implements BoundetShcSer
             Intent settings = new Intent(this, SettingsActivity.class);
             startActivity(settings);
             return true;
+        } else if (id == R.id.action_info) {
+
+            //Einstelluns Activity öffnen
+            Intent settings = new Intent(this, InfoActivity.class);
+            startActivity(settings);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
