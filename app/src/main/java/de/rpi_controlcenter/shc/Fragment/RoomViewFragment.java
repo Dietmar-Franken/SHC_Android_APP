@@ -69,18 +69,9 @@ public class RoomViewFragment extends Fragment {
      *
      * @param service
      */
-    public void startSync(final SHCConnectorService service) {
+    public void startSync(final SHCConnectorService service, final int syncIntervall) {
 
         final Handler handler = new Handler();
-        //Einstzellungsmanager holen
-        final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
-
-        //prüfen ob Synchronisation aktiv ist
-        if(!sp.getBoolean("shc.sync.active", false)) {
-
-            return;
-        }
-
         syncThread = new Thread() {
 
             @Override
@@ -90,7 +81,7 @@ public class RoomViewFragment extends Fragment {
 
                     //Wartezeit
                     try {
-                        Thread.sleep(sp.getInt("shc.sync.interval", 1000));
+                        Thread.sleep(syncIntervall);
                     } catch (InterruptedException e) {
 
                         interrupt();

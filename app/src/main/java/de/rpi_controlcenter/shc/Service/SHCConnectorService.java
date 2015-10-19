@@ -527,7 +527,7 @@ public class SHCConnectorService extends Service {
             protected List<RoomElement> doInBackground(Void... params) {
 
                 //JSON String laden
-                String jsonStr = getJsonFromShcMaster("a&ajax=roomsync&id=" + roomId);
+                String jsonStr = getJsonFromShcMaster("a&ajax=roomsyncjson&id=" + roomId);
 
                 //Fehlerüberwachung
                 if(jsonStr == null) {

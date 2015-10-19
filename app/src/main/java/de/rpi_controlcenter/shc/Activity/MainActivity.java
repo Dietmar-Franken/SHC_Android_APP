@@ -4,8 +4,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -84,7 +86,15 @@ public class MainActivity extends AppCompatActivity implements BoundetShcService
 
                     //Daten laden
                     roomViewFragment.updateRoomData(dataService);
-                    roomViewFragment.startSync(dataService);
+
+                    //Einstzellungsmanager holen
+                    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
+                    //prüfen ob Synchronisation aktiv ist
+                    if(sp.getBoolean("shc.sync.active", true)) {
+
+                        roomViewFragment.startSync(dataService, Integer.parseInt(sp.getString("shc.sync.interval", "1000")));
+                    }
 
                     //Titel der Action Bar setzen
                     getSupportActionBar().setTitle(roomName);
