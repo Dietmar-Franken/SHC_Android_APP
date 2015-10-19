@@ -6,8 +6,10 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,6 +72,15 @@ public class RoomViewFragment extends Fragment {
     public void startSync(final SHCConnectorService service) {
 
         final Handler handler = new Handler();
+        //Einstzellungsmanager holen
+        final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+
+        //prüfen ob Synchronisation aktiv ist
+        if(!sp.getBoolean("shc.sync.active", false)) {
+
+            return;
+        }
+
         syncThread = new Thread() {
 
             @Override
@@ -79,7 +90,7 @@ public class RoomViewFragment extends Fragment {
 
                     //Wartezeit
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(sp.getInt("shc.sync.interval", 1000));
                     } catch (InterruptedException e) {
 
                         interrupt();

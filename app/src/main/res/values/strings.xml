@@ -1,5 +1,5 @@
 <resources>
-    <string name="displayVersion">0.5.3</string>
+    <string name="displayVersion">0.5.4</string>
 
     <string name="app_name">SHC</string>
     <string name="mainActivity">Räume</string>
@@ -15,6 +15,7 @@
 
     <string name="settings.cat1">SHC Server</string>
     <string name="settings.cat2">SHC Benutzer</string>
+    <string name="settings.cat3">SHC Allgemein</string>
     <string name="settings.ipaddress">IP Adresse</string>
     <string name="settings.ipaddress.desc">IP-Adresse des SHC Master Servers</string>
     <string name="settings.port">Port</string>
@@ -25,6 +26,26 @@
     <string name="settings.user.desc">Benutzername des SHC Benutzers</string>
     <string name="settings.password">Passwort</string>
     <string name="settings.password.desc">Passwortd des SHC Benutzers</string>
+    <string name="settings.sync">Synchronisieren</string>
+    <string name="settings.sync.desc">Sollen die Statusdaten regelmäßig vom Server abgefragt werden?</string>
+    <string name="settings.sync.time">Synchronisationsintervall</string>
+    <string name="settings.sync.time.desc">Zeitabstand in dem Synchronisiert werden soll (je kürzer der Intervall, desto mehr steigt die belastung vom SHC Server)</string>
+    <string name="settings.sync.time.default">1000</string>
+
+    <string-array name="settings_sync_time_entrys">
+        <item>0,5s</item>
+        <item>1s</item>
+        <item>2s</item>
+        <item>5s</item>
+        <item>10s</item>
+    </string-array>
+    <string-array name="settings_sync_time_values">
+        <item>500</item>
+        <item>1000</item>
+        <item>2000</item>
+        <item>5000</item>
+        <item>10000</item>
+    </string-array>
 
     <string name="elements.button.on">an</string>
     <string name="elements.button.off">aus</string>

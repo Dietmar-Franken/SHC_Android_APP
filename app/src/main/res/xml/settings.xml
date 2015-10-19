@@ -27,8 +27,10 @@
             android:maxLength="50"
             android:defaultValue="shc" />
     </PreferenceCategory>
+
     <PreferenceCategory
         android:title="@string/settings.cat2">
+
         <EditTextPreference
             android:key="shc.user"
             android:title="@string/settings.user"
@@ -42,5 +44,24 @@
             android:maxLength="25"
             android:inputType="textPassword"
             android:defaultValue="" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/settings.cat3">
+
+        <CheckBoxPreference
+            android:key="shc.sync.active"
+            android:title="@string/settings.sync"
+            android:summary="@string/settings.sync.desc"
+            android:defaultValue="true" />
+        <ListPreference
+            android:dependency="shc.sync.active"
+            android:key="shc.sync.interval"
+            android:title="@string/settings.sync.time"
+            android:summary="@string/settings.sync.time.desc"
+            android:dialogTitle="@string/settings.sync.time"
+            android:entries="@array/settings_sync_time_entrys"
+            android:entryValues="@array/settings_sync_time_values"
+            android:defaultValue="@string/settings.sync.time.default" />
     </PreferenceCategory>
 </PreferenceScreen>
