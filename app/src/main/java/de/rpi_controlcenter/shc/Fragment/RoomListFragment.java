@@ -4,10 +4,15 @@ import android.app.AlertDialog;
 import android.app.ListFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import de.rpi_controlcenter.shc.Activity.SettingsActivity;
 import de.rpi_controlcenter.shc.Data.Room;
@@ -91,6 +96,9 @@ public class RoomListFragment extends ListFragment {
                             })
                             .show();
                     return;
+                } else {
+
+                    rooms = new ArrayList<Room>();
                 }
 
                 RoomListFragment.this.roomListAdapter = new RoomListAdapter(getActivity(), rooms);
