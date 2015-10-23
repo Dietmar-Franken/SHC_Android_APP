@@ -169,15 +169,18 @@ public class SHCConnectorService extends Service {
             }
 
             //Cookies lesen
-            List<String> cookies = connection.getHeaderFields().get("Set-Cookie");
-            if(cookies != null) {
+            if(connection.getHeaderFields() != null) {
 
-                for(String cookie : cookies) {
+                List<String> cookies = connection.getHeaderFields().get("Set-Cookie");
+                if(cookies != null) {
 
-                    if(cookie.startsWith("rwf_session=")) {
+                    for(String cookie : cookies) {
 
-                        sessionId = cookie.replace("rwf_session=", "").substring(0, 64).trim();
-                        break;
+                        if(cookie.startsWith("rwf_session=")) {
+
+                            sessionId = cookie.replace("rwf_session=", "").substring(0, 64).trim();
+                            break;
+                        }
                     }
                 }
             }
