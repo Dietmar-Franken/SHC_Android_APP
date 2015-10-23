@@ -96,9 +96,6 @@ public class RoomListFragment extends ListFragment {
                             })
                             .show();
                     return;
-                } else {
-
-                    rooms = new ArrayList<Room>();
                 }
 
                 RoomListFragment.this.roomListAdapter = new RoomListAdapter(getActivity(), rooms);
