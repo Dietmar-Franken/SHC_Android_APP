@@ -4,12 +4,17 @@ package de.rpi_controlcenter.shc.Fragment;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.rpi_controlcenter.shc.Activity.MainActivity;
 import de.rpi_controlcenter.shc.Activity.SettingsActivity;
 import de.rpi_controlcenter.shc.Data.RoomElement;
 import de.rpi_controlcenter.shc.Fragment.RoomElements.AvmMeasuringSocketFragment;
@@ -46,6 +52,42 @@ public class RoomViewFragment extends Fragment {
 
     private Thread syncThread;
 
+    private SHCConnectorService dataService = null;
+
+    /**
+     * Verbindung zum SHC Daten Service
+     */
+    private ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+
+            dataService = ((SHCConnectorService.SHCConnectorBinder) service).getSHCConnectorService();
+            updateRoomData(false);
+
+            //Einstzellungsmanager holen
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+
+            //prüfen ob Synchronisation aktiv ist
+            if(sp.getBoolean("shc.sync.active", true)) {
+
+                startSync(Integer.parseInt(sp.getString("shc.sync.interval", "1000")));
+            }
+
+            //Action Bar
+            if(MainActivity.isUseTabletView() == false) {
+
+                ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.labelRooms);
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+            dataService = null;
+        }
+    };
+
     public RoomViewFragment() {
         // Required empty public constructor
     }
@@ -61,15 +103,15 @@ public class RoomViewFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
+        bindDataService();
+
         roomViewLayout = (LinearLayout) getActivity().findViewById(R.id.roomViewLayoutContainer);
     }
 
     /**
      * startet den Syc Thread
-     *
-     * @param service
      */
-    public void startSync(final SHCConnectorService service, final int syncIntervall) {
+    public void startSync(final int syncIntervall) {
 
         final Handler handler = new Handler();
         syncThread = new Thread() {
@@ -88,7 +130,7 @@ public class RoomViewFragment extends Fragment {
                     }
 
                     //Synchronisieren
-                    service.sync(getArguments().getInt("roomID"), new SHCConnectorService.SyncCallback() {
+                    dataService.sync(getArguments().getInt("roomID"), new SHCConnectorService.SyncCallback() {
 
                         @Override
                         public void syncFinished(final List<RoomElement> roomElements) {
@@ -193,20 +235,9 @@ public class RoomViewFragment extends Fragment {
     /**
      * Fragt die Liste der Elemente eines Raumes ab
      *
-     * @param service
-     */
-    public void updateRoomData(SHCConnectorService service) {
-
-        this.updateRoomData(service, false);
-    }
-
-    /**
-     * Fragt die Liste der Elemente eines Raumes ab
-     *
-     * @param service
      * @param force bei True werden immer neue Daten vom Server abgerufen
      */
-    public void updateRoomData(SHCConnectorService service, final boolean force) {
+    public void updateRoomData(final boolean force) {
 
         int roomId = getArguments().getInt("roomID");
 
@@ -474,12 +505,43 @@ public class RoomViewFragment extends Fragment {
             }
         };
 
-        if(service != null) {
+        dataService.updateRoomElementList(roomId, callback, force);
+    }
 
-            service.updateRoomElementList(roomId, callback, force);
-        } else {
+    @Override
+    public void onStop() {
+        super.onStop();
 
-            ((BoundetShcService) getActivity()).getShcConnectorService().updateRoomElementList(roomId, callback, force);
+        unbindDataService();
+    }
+
+    /**
+     * SHC Daten Service Binden
+     */
+    private void bindDataService() {
+
+        if(dataService == null) {
+
+            Intent i = new Intent(getActivity(), SHCConnectorService.class);
+            getActivity().bindService(i, connection, Context.BIND_AUTO_CREATE);
+        }
+    }
+
+    /**
+     * SHC Daten Service trennen
+     */
+    private void unbindDataService() {
+
+        if(dataService != null) {
+
+            //Service zum stoppen auffordern
+            dataService.stopSelf();
+
+            //Bindung lösen
+            getActivity().unbindService(connection);
+
+            //Objekt löschen
+            dataService = null;
         }
     }
 }

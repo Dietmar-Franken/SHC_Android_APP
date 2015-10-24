@@ -17,46 +17,15 @@ import de.rpi_controlcenter.shc.Interface.BoundetShcService;
 import de.rpi_controlcenter.shc.R;
 import de.rpi_controlcenter.shc.Service.SHCConnectorService;
 
-public class RoomViewAcrivity extends AppCompatActivity implements BoundetShcService {
-
-    private SHCConnectorService dataService = null;
+public class RoomViewAcrivity extends AppCompatActivity {
 
     private RoomViewFragment roomViewFragment = null;
-
-    /**
-     * Verbindung zum SHC Daten Service
-     */
-    private ServiceConnection connection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-
-            dataService = ((SHCConnectorService.SHCConnectorBinder) service).getSHCConnectorService();
-            roomViewFragment.updateRoomData(dataService);
-
-            //Einstzellungsmanager holen
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-
-            //prüfen ob Synchronisation aktiv ist
-            if(sp.getBoolean("shc.sync.active", true)) {
-
-                roomViewFragment.startSync(dataService,Integer.parseInt(sp.getString("shc.sync.interval", "1000")));
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-
-            dataService = null;
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room_view_acrivity);
 
-        bindDataService();
 
         //Fragment erzeugen
         roomViewFragment = new RoomViewFragment();
@@ -85,7 +54,7 @@ public class RoomViewAcrivity extends AppCompatActivity implements BoundetShcSer
         if (id == R.id.action_reload) {
 
             //Raum Liste aktualisieren
-            roomViewFragment.updateRoomData(dataService, true);
+            roomViewFragment.updateRoomData(true);
             return true;
         } else if (id == R.id.action_settings) {
 
@@ -102,48 +71,5 @@ public class RoomViewAcrivity extends AppCompatActivity implements BoundetShcSer
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        unbindDataService();
-    }
-
-    /**
-     * SHC Daten Service Binden
-     */
-    private void bindDataService() {
-
-        if(dataService == null) {
-
-            Intent i = new Intent(this, SHCConnectorService.class);
-            bindService(i, connection, Context.BIND_AUTO_CREATE);
-        }
-    }
-
-    /**
-     * SHC Daten Service trennen
-     */
-    private void unbindDataService() {
-
-        if(dataService != null) {
-
-            //Service zum stoppen auffordern
-            dataService.stopSelf();
-
-            //Bindung lösen
-            unbindService(connection);
-
-            //Objekt löschen
-            dataService = null;
-        }
-    }
-
-    @Override
-    public SHCConnectorService getShcConnectorService() {
-
-        return dataService;
     }
 }

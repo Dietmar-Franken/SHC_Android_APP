@@ -18,47 +18,18 @@ import de.rpi_controlcenter.shc.Interface.BoundetShcService;
 import de.rpi_controlcenter.shc.R;
 import de.rpi_controlcenter.shc.Service.SHCConnectorService;
 
-public class MainActivity extends AppCompatActivity implements BoundetShcService {
-
-    private SHCConnectorService dataService = null;
+public class MainActivity extends AppCompatActivity {
 
     private RoomListFragment roomListFragment = null;
 
     private RoomViewFragment roomViewFragment = null;
 
-    private boolean useTabletView = false;
-
-    /**
-     * Verbindung zum SHC Daten Service
-     */
-    private ServiceConnection connection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-
-            dataService = ((SHCConnectorService.SHCConnectorBinder) service).getSHCConnectorService();
-            roomListFragment.updateRoomData(useTabletView, true);
-
-            //Action Bar
-            if(useTabletView == false) {
-
-                getSupportActionBar().setTitle(R.string.labelRooms);
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-
-            dataService = null;
-        }
-    };
+    private static boolean useTabletView = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        bindDataService();
 
         //Prüfen ob Tablet View Aktiv
         if(findViewById(R.id.roomViewPlaceHolderTablet) != null) {
@@ -83,18 +54,6 @@ public class MainActivity extends AppCompatActivity implements BoundetShcService
                     bundle.putBoolean("useTabletView", true);
                     roomViewFragment.setArguments(bundle);
                     getFragmentManager().beginTransaction().replace(R.id.roomViewPlaceHolderTablet, roomViewFragment).commit();
-
-                    //Daten laden
-                    roomViewFragment.updateRoomData(dataService);
-
-                    //Einstzellungsmanager holen
-                    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-
-                    //prüfen ob Synchronisation aktiv ist
-                    if(sp.getBoolean("shc.sync.active", true)) {
-
-                        roomViewFragment.startSync(dataService, Integer.parseInt(sp.getString("shc.sync.interval", "1000")));
-                    }
 
                     //Titel der Action Bar setzen
                     getSupportActionBar().setTitle(roomName);
@@ -127,12 +86,9 @@ public class MainActivity extends AppCompatActivity implements BoundetShcService
         if (id == R.id.action_reload) {
 
             //Raum Liste aktualisieren
-            if(useTabletView && dataService != null) {
+            if(useTabletView) {
 
-                roomViewFragment.updateRoomData(dataService, true);
-            } else if(useTabletView) {
-
-                bindDataService();
+                roomViewFragment.updateRoomData(true);
             }
             roomListFragment.updateRoomData(false, true);
             return true;
@@ -153,46 +109,8 @@ public class MainActivity extends AppCompatActivity implements BoundetShcService
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
+    public static boolean isUseTabletView() {
 
-        unbindDataService();
-    }
-
-    /**
-     * SHC Daten Service Binden
-     */
-    private void bindDataService() {
-
-        if(dataService == null) {
-
-            Intent i = new Intent(this, SHCConnectorService.class);
-            bindService(i, connection, Context.BIND_AUTO_CREATE);
-        }
-    }
-
-    /**
-     * SHC Daten Service trennen
-     */
-    private void unbindDataService() {
-
-        if(dataService != null) {
-
-            //Service zum stoppen auffordern
-            dataService.stopSelf();
-
-            //Bindung lösen
-            unbindService(connection);
-
-            //Objekt löschen
-            dataService = null;
-        }
-    }
-
-    @Override
-    public SHCConnectorService getShcConnectorService() {
-
-        return dataService;
+        return useTabletView;
     }
 }
