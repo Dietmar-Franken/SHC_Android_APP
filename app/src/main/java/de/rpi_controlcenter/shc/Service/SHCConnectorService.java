@@ -500,6 +500,7 @@ public class SHCConnectorService extends Service {
                         }
 
                     } catch (JSONException e) {
+                        roomElementsCache.put(roomId, roomElements);
                         return roomElements;
                     }
                 }
