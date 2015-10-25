@@ -8,8 +8,8 @@ android {
         applicationId "de.rpi_controlcenter.shc"
         minSdkVersion 14
         targetSdkVersion 17
-        versionCode 8
-        versionName "1.0.2"
+        versionCode 9
+        versionName "1.0.3"
     }
     buildTypes {
         release {
