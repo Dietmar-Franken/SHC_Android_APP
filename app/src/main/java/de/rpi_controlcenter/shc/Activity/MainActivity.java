@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_reload) {
 
             //Raum Liste aktualisieren
-            if(useTabletView) {
+            if(isUseTabletView()) {
 
                 roomViewFragment.updateRoomData(true);
             }
