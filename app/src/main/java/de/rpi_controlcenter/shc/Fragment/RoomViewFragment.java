@@ -3,6 +3,7 @@ package de.rpi_controlcenter.shc.Fragment;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Context;
@@ -271,12 +272,16 @@ public class RoomViewFragment extends Fragment {
                 }
 
                 //alte Fragments entfernen und Liste leeren
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                FragmentManager fm = getFragmentManager();
+                if(fm == null) {
+
+                    //Update abbrechen
+                    return;
+                }
+
+                FragmentTransaction ft = fm.beginTransaction();
                 roomViewLayout.removeAllViews();
                 fragmentList.clear();
-
-                //Fragment Transaktion initialisieren
-                ft = getFragmentManager().beginTransaction();
 
                 //Fragmente Erzeugen und der View hinzufügen
                 for (RoomElement re : roomElements) {
