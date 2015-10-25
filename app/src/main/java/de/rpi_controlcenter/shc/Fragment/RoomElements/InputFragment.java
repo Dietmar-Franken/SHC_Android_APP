@@ -46,15 +46,17 @@ public class InputFragment extends Fragment {
         super.onStart();
 
         //Elemente laden
-        if(nameView == null) {
+        if(getActivity().findViewById(R.id.element_state) != null) {
 
-            LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.roomViewLayoutContainer);
-            stateView = (TextView) linearLayout.findViewById(R.id.element_state);
+            stateView = (TextView) getActivity().findViewById(R.id.element_state);
             stateView.setId(STATE_TEXT_VIEW);
-            nameView = (TextView) linearLayout.findViewById(R.id.element_name);
+            nameView = (TextView) getActivity().findViewById(R.id.element_name);
             nameView.setId(NAME_TEXT_VIEW);
-            iconView = (ImageView) linearLayout.findViewById(R.id.element_icon);
+            iconView = (ImageView) getActivity().findViewById(R.id.element_icon);
             iconView.setId(ICON_IMAGE_VIEW);
+        } else {
+
+            return;
         }
 
         //Raum Element Daten holen

@@ -47,17 +47,19 @@ public class SingleValueFragment extends Fragment {
         super.onStart();
 
         //Elemente laden
-        if(nameView == null) {
+        if(getActivity().findViewById(R.id.element_name) != null) {
 
-            LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.roomViewLayoutContainer);
-            nameView = (TextView) linearLayout.findViewById(R.id.element_name);
+            nameView = (TextView) getActivity().findViewById(R.id.element_name);
             nameView.setId(NAME_TEXT_VIEW);
-            valueNameView = (TextView) linearLayout.findViewById(R.id.element_value_name);
+            valueNameView = (TextView) getActivity().findViewById(R.id.element_value_name);
             valueNameView.setId(VALUE_NAME_TEXT_VIEW);
-            valueView = (TextView) linearLayout.findViewById(R.id.element_value);
+            valueView = (TextView) getActivity().findViewById(R.id.element_value);
             valueView.setId(VALUE_TEXT_VIEW);
-            iconView = (ImageView) linearLayout.findViewById(R.id.element_icon);
+            iconView = (ImageView) getActivity().findViewById(R.id.element_icon);
             iconView.setId(ICON_IMAGE_VIEW);
+        } else {
+
+            return;
         }
 
         //Raum Element Daten holen

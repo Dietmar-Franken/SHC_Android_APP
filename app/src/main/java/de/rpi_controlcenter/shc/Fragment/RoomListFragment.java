@@ -1,5 +1,6 @@
 package de.rpi_controlcenter.shc.Fragment;
 
+import android.support.v7.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.ListFragment;
 import android.content.ComponentName;
@@ -55,7 +56,10 @@ public class RoomListFragment extends ListFragment {
             //Action Bar
             if(MainActivity.isUseTabletView() == false) {
 
-                ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.labelRooms);
+                if (getActivity() != null) {
+
+                    ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.labelRooms);
+                }
             }
         }
 
@@ -134,12 +138,15 @@ public class RoomListFragment extends ListFragment {
                     return;
                 }
 
-                RoomListFragment.this.roomListAdapter = new RoomListAdapter(getActivity(), rooms);
-                RoomListFragment.this.setListAdapter(RoomListFragment.this.roomListAdapter);
+                if(getActivity() != null) {
 
-                if (clickFirstElemnet) {
+                    RoomListFragment.this.roomListAdapter = new RoomListAdapter(getActivity(), rooms);
+                    RoomListFragment.this.setListAdapter(RoomListFragment.this.roomListAdapter);
 
-                    RoomListFragment.this.clickFirstListElement();
+                    if (clickFirstElemnet) {
+
+                        RoomListFragment.this.clickFirstListElement();
+                    }
                 }
             }
         }, force);

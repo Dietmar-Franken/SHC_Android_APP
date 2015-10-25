@@ -64,7 +64,12 @@ public class RoomViewFragment extends Fragment {
         public void onServiceConnected(ComponentName name, IBinder service) {
 
             dataService = ((SHCConnectorService.SHCConnectorBinder) service).getSHCConnectorService();
-            updateRoomData(false);
+
+            roomViewLayout = (LinearLayout) getActivity().findViewById(R.id.roomViewLayoutContainer);
+            if(roomViewLayout != null) {
+
+                updateRoomData(false);
+            }
 
             //Einstzellungsmanager holen
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
@@ -73,12 +78,6 @@ public class RoomViewFragment extends Fragment {
             if(sp.getBoolean("shc.sync.active", true)) {
 
                 startSync(Integer.parseInt(sp.getString("shc.sync.interval", "1000")));
-            }
-
-            //Action Bar
-            if(MainActivity.isUseTabletView() == false) {
-
-                ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.labelRooms);
             }
         }
 
@@ -105,8 +104,6 @@ public class RoomViewFragment extends Fragment {
         super.onStart();
 
         bindDataService();
-
-        roomViewLayout = (LinearLayout) getActivity().findViewById(R.id.roomViewLayoutContainer);
     }
 
     /**

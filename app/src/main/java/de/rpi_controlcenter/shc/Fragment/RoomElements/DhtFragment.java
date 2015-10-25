@@ -47,17 +47,19 @@ public class DhtFragment extends Fragment {
         super.onStart();
 
         //Elemente laden
-        if(nameView == null) {
+        if(getActivity().findViewById(R.id.element_name) != null) {
 
-            LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.roomViewLayoutContainer);
-            nameView = (TextView) linearLayout.findViewById(R.id.element_name);
+            nameView = (TextView) getActivity().findViewById(R.id.element_name);
             nameView.setId(NAME_TEXT_VIEW);
-            tempView = (TextView) linearLayout.findViewById(R.id.element_temp);
+            tempView = (TextView) getActivity().findViewById(R.id.element_temp);
             tempView.setId(TEMP_TEXT_VIEW);
-            humView = (TextView) linearLayout.findViewById(R.id.element_hum);
+            humView = (TextView) getActivity().findViewById(R.id.element_hum);
             humView.setId(HUM_TEXT_VIEW);
-            iconView = (ImageView) linearLayout.findViewById(R.id.element_icon);
+            iconView = (ImageView) getActivity().findViewById(R.id.element_icon);
             iconView.setId(ICON_IMAGE_VIEW);
+        } else {
+
+            return;
         }
 
         //Raum Element Daten holen

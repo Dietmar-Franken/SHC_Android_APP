@@ -84,17 +84,19 @@ public class DoubleButtonFragment extends Fragment {
         super.onStart();
 
         //Elemente laden
-        if(nameView == null) {
+        if(getActivity().findViewById(R.id.element_onButton) != null) {
 
-            LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.roomViewLayoutContainer);
-            onButton = (Button) linearLayout.findViewById(R.id.element_onButton);
+            onButton = (Button) getActivity().findViewById(R.id.element_onButton);
             onButton.setId(ON_BUTTON);
-            offButton = (Button) linearLayout.findViewById(R.id.element_offButton);
+            offButton = (Button) getActivity().findViewById(R.id.element_offButton);
             offButton.setId(OFF_BUTTON);
-            nameView = (TextView) linearLayout.findViewById(R.id.element_name);
+            nameView = (TextView) getActivity().findViewById(R.id.element_name);
             nameView.setId(NAME_TEXT_VIEW);
-            iconView = (ImageView) linearLayout.findViewById(R.id.element_icon);
+            iconView = (ImageView) getActivity().findViewById(R.id.element_icon);
             iconView.setId(ICON_IMAGE_VIEW);
+        } else {
+
+            return;
         }
 
         //Raum Element Daten holen

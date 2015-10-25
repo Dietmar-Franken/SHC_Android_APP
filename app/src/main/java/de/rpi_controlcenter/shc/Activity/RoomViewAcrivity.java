@@ -26,7 +26,6 @@ public class RoomViewAcrivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room_view_acrivity);
 
-
         //Fragment erzeugen
         roomViewFragment = new RoomViewFragment();
         Bundle bundle = new Bundle();

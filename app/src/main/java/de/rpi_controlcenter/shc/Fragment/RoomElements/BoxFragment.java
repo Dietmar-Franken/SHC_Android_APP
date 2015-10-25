@@ -42,11 +42,15 @@ public class BoxFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        if(getArguments() != null && getArguments().containsKey("name")) {
+        if(getActivity() != null && getArguments() != null && getArguments().containsKey("name")) {
 
             if(start == null) {
 
                 start = ((TextView) getActivity().findViewById(R.id.element_boxStart));
+
+                if(start == null) {
+                    return;
+                }
                 start.setId(NAME_TEXT_VIEW);
             }
             start.setText(getArguments().getString("name"));
