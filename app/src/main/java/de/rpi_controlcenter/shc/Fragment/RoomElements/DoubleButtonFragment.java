@@ -1,7 +1,13 @@
 package de.rpi_controlcenter.shc.Fragment.RoomElements;
 
 import android.app.Fragment;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import de.rpi_controlcenter.shc.Activity.MainActivity;
 import de.rpi_controlcenter.shc.Interface.BoundetShcService;
 import de.rpi_controlcenter.shc.R;
 import de.rpi_controlcenter.shc.Service.SHCConnectorService;
@@ -20,7 +27,29 @@ import de.rpi_controlcenter.shc.Service.SHCConnectorService;
  */
 public class DoubleButtonFragment extends Fragment {
 
+    private SHCConnectorService dataService = null;
 
+    private boolean ready = false;
+
+    /**
+     * Verbindung zum SHC Daten Service
+     */
+    private ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+
+            dataService = ((SHCConnectorService.SHCConnectorBinder) service).getSHCConnectorService();
+            ready = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+            ready = false;
+            dataService = null;
+        }
+    };
 
     public final int ON_BUTTON = (new Double(Math.random() * 1000)).intValue();
     public final int OFF_BUTTON = (new Double(Math.random() * 1000)).intValue();
@@ -40,6 +69,8 @@ public class DoubleButtonFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        bindDataService();
 
         if(getArguments() != null &&getArguments().containsKey("useLargeLayout") && getArguments().getBoolean("useLargeLayout")) {
 
@@ -116,20 +147,28 @@ public class DoubleButtonFragment extends Fragment {
             @Override
             public void onClick(final View v) {
 
-                ((BoundetShcService) getActivity()).getShcConnectorService().sendOnCommand(id, new SHCConnectorService.CommandExecutedEvent() {
+                dataService.sendOnCommand(id, new SHCConnectorService.CommandExecutedEvent() {
 
                     @Override
                     public void commandExecuted(String error) {
 
-                        if (error.equals("")) {
+                        if(ready) {
 
-                            //kein Fehler
-                            Toast.makeText(v.getContext(), R.string.errors_sendCommand_succsess, Toast.LENGTH_SHORT).show();
-                            getArguments().putInt("state", 1);
-                            updateState();
+                            //bereit
+                            if (error.equals("")) {
+
+                                //kein Fehler
+                                Toast.makeText(v.getContext(), R.string.errors_sendCommand_succsess, Toast.LENGTH_SHORT).show();
+                                getArguments().putInt("state", 1);
+                                updateState();
+                            } else {
+
+                                Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
+                            }
                         } else {
 
-                            Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
+                            //noch nicht bereit zum senden
+                            Toast.makeText(v.getContext(), R.string.errors_notRady, Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -141,20 +180,28 @@ public class DoubleButtonFragment extends Fragment {
             @Override
             public void onClick(final View v) {
 
-                ((BoundetShcService) getActivity()).getShcConnectorService().sendOffCommand(id, new SHCConnectorService.CommandExecutedEvent() {
+                dataService.sendOffCommand(id, new SHCConnectorService.CommandExecutedEvent() {
 
                     @Override
                     public void commandExecuted(String error) {
 
-                        if (error.equals("")) {
+                        if(ready) {
 
-                            //kein Fehler
-                            Toast.makeText(v.getContext(), R.string.errors_sendCommand_succsess, Toast.LENGTH_SHORT).show();
-                            getArguments().putInt("state", 0);
-                            updateState();
+                            //Bereit
+                            if (error.equals("")) {
+
+                                //kein Fehler
+                                Toast.makeText(v.getContext(), R.string.errors_sendCommand_succsess, Toast.LENGTH_SHORT).show();
+                                getArguments().putInt("state", 0);
+                                updateState();
+                            } else {
+
+                                Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
+                            }
                         } else {
 
-                            Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
+                            //noch nicht bereit zum senden
+                            Toast.makeText(v.getContext(), R.string.errors_notRady, Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -321,6 +368,43 @@ public class DoubleButtonFragment extends Fragment {
 
                 iconView.setImageResource(R.mipmap.powersocket);
                 break;
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        unbindDataService();
+    }
+
+    /**
+     * SHC Daten Service Binden
+     */
+    private void bindDataService() {
+
+        if(dataService == null) {
+
+            Intent i = new Intent(getActivity(), SHCConnectorService.class);
+            getActivity().bindService(i, connection, Context.BIND_AUTO_CREATE);
+        }
+    }
+
+    /**
+     * SHC Daten Service trennen
+     */
+    private void unbindDataService() {
+
+        if(dataService != null) {
+
+            //Service zum stoppen auffordern
+            dataService.stopSelf();
+
+            //Bindung lösen
+            getActivity().unbindService(connection);
+
+            //Objekt löschen
+            dataService = null;
         }
     }
 }
