@@ -26,6 +26,8 @@
     <string name="settings.user.desc">Benutzername des SHC Benutzers</string>
     <string name="settings.password">Passwort</string>
     <string name="settings.password.desc">Passwortd des SHC Benutzers</string>
+    <string name="settings.safetyRequest">Sicherheitsabfragen</string>
+    <string name="settings.safetyRequest.desc">Soll vor dem Ausführen kritischer Aktionen (Reboot, Neustart) noch einmal nachgefragt werden ob dies ausgeführt werden soll?</string>
     <string name="settings.sync">Synchronisieren</string>
     <string name="settings.sync.desc">Sollen die Statusdaten regelmäßig vom Server abgefragt werden?</string>
     <string name="settings.sync.time">Synchronisationsintervall</string>
@@ -88,5 +90,13 @@
     <string name="info.project.side.url"><u>Webseite</u></string>
     <string name="info.project.licence">Lizenzhinweise</string>
     <string name="info.project.licence.url"><u>GNU Public License</u></string>
+
+    <string name="safetyRequest.title">Sicherheitsabfrage</string>
+    <string name="safetyRequest.yes">ja</string>
+    <string name="safetyRequest.no">nein</string>
+    <string name="safetyRequest.reboot">Bist du sicher das du den Server Neustarten möchtest?</string>
+    <string name="safetyRequest.shutdown">Bist du sicher das du den Server Herunterfahren möchtest?</string>
+    <string name="safetyRequest.fb.reconnect">Bist du sicher das du die Internetverbindung der Fritz!Box Neustarten möchtest?</string>
+    <string name="safetyRequest.fb.reboot">Bist du sicher das du die Fritz!Box Neustarten möchtest?</string>
 
 </resources>

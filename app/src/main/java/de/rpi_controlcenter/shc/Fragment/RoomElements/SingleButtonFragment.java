@@ -1,13 +1,17 @@
 package de.rpi_controlcenter.shc.Fragment.RoomElements;
 
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import de.rpi_controlcenter.shc.Activity.SettingsActivity;
 import de.rpi_controlcenter.shc.Interface.BoundetShcService;
 import de.rpi_controlcenter.shc.R;
 import de.rpi_controlcenter.shc.Service.SHCConnectorService;
@@ -131,28 +136,122 @@ public class SingleButtonFragment extends Fragment {
             @Override
             public void onClick(final View v) {
 
-                if(ready) {
+                //Einstzellungsmanager holen
+                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
 
-                    //bereit zum senden
-                    dataService.sendOnCommand(id, new SHCConnectorService.CommandExecutedEvent() {
+                if(sp.getBoolean("shc.safetyRequest", true)) {
 
+                    //Ja aktion
+                    DialogInterface.OnClickListener yes = new DialogInterface.OnClickListener() {
                         @Override
-                        public void commandExecuted(String error) {
+                        public void onClick(DialogInterface dialog, int which) {
 
-                            if (error.equals("")) {
+                            if(ready) {
 
-                                //kein Fehler
-                                Toast.makeText(v.getContext(), R.string.errors_sendCommand_succsess, Toast.LENGTH_SHORT).show();
+                                //bereit zum senden
+                                dataService.sendOnCommand(id, new SHCConnectorService.CommandExecutedEvent() {
+
+                                    @Override
+                                    public void commandExecuted(String error) {
+
+                                        if (error.equals("")) {
+
+                                            //kein Fehler
+                                            Toast.makeText(v.getContext(), R.string.errors_sendCommand_succsess, Toast.LENGTH_SHORT).show();
+                                        } else {
+
+                                            Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+                                });
                             } else {
 
-                                Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
+                                //noch nicht bereit zum senden
+                                Toast.makeText(v.getContext(), R.string.errors_notRady, Toast.LENGTH_LONG).show();
                             }
                         }
-                    });
+                    };
+
+                    //Nein Aktion
+                    DialogInterface.OnClickListener no = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            //Nichts
+                        }
+                    };
+
+                    Bundle args = getArguments();
+                    if(args.getString("type").equals("Reboot")) {
+
+                        //Sicherheitsabfrage Reboot
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle(R.string.safetyRequest_title)
+                                .setMessage(R.string.safetyRequest_reboot)
+                                .setPositiveButton(R.string.safetyRequest_yes, yes)
+                                .setNegativeButton(R.string.safetyRequest_no, no)
+                                .show();
+                        return;
+
+                    } else if(args.getString("type").equals("Shutdown")) {
+
+                        //Sicherheitsabfrage Shutdown
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle(R.string.safetyRequest_title)
+                                .setMessage(R.string.safetyRequest_shutdown)
+                                .setPositiveButton(R.string.safetyRequest_yes, yes)
+                                .setNegativeButton(R.string.safetyRequest_no, no)
+                                .show();
+                        return;
+
+                    } else if(args.getString("type").equals("FritzBoxReconnect")) {
+
+                        //Sicherheitsabfrage FritzBoxReconnect
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle(R.string.safetyRequest_title)
+                                .setMessage(R.string.safetyRequest_reboot)
+                                .setPositiveButton(R.string.safetyRequest_yes, yes)
+                                .setNegativeButton(R.string.safetyRequest_no, no)
+                                .show();
+                        return;
+
+                    } else if(args.getString("type").equals("FritzBoxReboot")) {
+
+                        //Sicherheitsabfrage FritzBoxReboot
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle(R.string.safetyRequest_title)
+                                .setMessage(R.string.safetyRequest_reboot)
+                                .setPositiveButton(R.string.safetyRequest_yes, yes)
+                                .setNegativeButton(R.string.safetyRequest_no, no)
+                                .show();
+                        return;
+
+                    }
                 } else {
 
-                    //noch nicht bereit zum senden
-                    Toast.makeText(v.getContext(), R.string.errors_notRady, Toast.LENGTH_LONG).show();
+                    if(ready) {
+
+                        //bereit zum senden
+                        dataService.sendOnCommand(id, new SHCConnectorService.CommandExecutedEvent() {
+
+                            @Override
+                            public void commandExecuted(String error) {
+
+                                if (error.equals("")) {
+
+                                    //kein Fehler
+                                    Toast.makeText(v.getContext(), R.string.errors_sendCommand_succsess, Toast.LENGTH_SHORT).show();
+                                } else {
+
+                                    Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                    } else {
+
+                        //noch nicht bereit zum senden
+                        Toast.makeText(v.getContext(), R.string.errors_notRady, Toast.LENGTH_LONG).show();
+                    }
                 }
             }
         });

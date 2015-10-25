@@ -50,6 +50,11 @@
         android:title="@string/settings.cat3">
 
         <CheckBoxPreference
+            android:key="shc.safetyRequest"
+            android:title="@string/settings.safetyRequest"
+            android:summary="@string/settings.safetyRequest.desc"
+            android:defaultValue="true" />
+        <CheckBoxPreference
             android:key="shc.sync.active"
             android:title="@string/settings.sync"
             android:summary="@string/settings.sync.desc"
