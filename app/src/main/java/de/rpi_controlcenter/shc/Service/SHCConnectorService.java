@@ -708,7 +708,7 @@ public class SHCConnectorService extends Service {
             protected String doInBackground(Void... params) {
 
                 //JSON String laden
-                String jsonStr = getJsonFromShcMaster("a&ajax=executeswitchcommand&sid=" + elementId + "&command=1");
+                String jsonStr = getJsonFromShcMaster("a&ajax=executeappswitchcommand&sid=" + elementId + "&command=1");
 
                 if(jsonStr != null) {
 
@@ -750,7 +750,7 @@ public class SHCConnectorService extends Service {
             protected String doInBackground(Void... params) {
 
                 //JSON String laden
-                String jsonStr = getJsonFromShcMaster("a&ajax=executeswitchcommand&sid=" + elementId + "&command=0");
+                String jsonStr = getJsonFromShcMaster("a&ajax=executeappswitchcommand&sid=" + elementId + "&command=0");
 
                 if(jsonStr != null) {
 
