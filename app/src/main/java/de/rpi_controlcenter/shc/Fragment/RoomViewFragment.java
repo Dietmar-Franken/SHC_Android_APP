@@ -139,7 +139,7 @@ public class RoomViewFragment extends Fragment {
                                 public void run() {
 
                                     //Fehler beim Syncronisieren
-                                    if(roomElements == null) {
+                                    if(roomElements == null && getActivity() != null) {
 
                                         Toast.makeText(getActivity(), R.string.errors_syncError, Toast.LENGTH_LONG).show();
                                         return;
