@@ -143,6 +143,9 @@ public class RoomViewFragment extends Fragment {
 
                                         Toast.makeText(getActivity(), R.string.errors_syncError, Toast.LENGTH_LONG).show();
                                         return;
+                                    } else if(roomElements == null) {
+
+                                        return;
                                     }
 
                                     //UI aktualisieren

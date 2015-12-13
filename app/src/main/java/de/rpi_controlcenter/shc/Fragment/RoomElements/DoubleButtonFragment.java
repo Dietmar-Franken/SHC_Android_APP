@@ -182,31 +182,34 @@ public class DoubleButtonFragment extends Fragment {
             @Override
             public void onClick(final View v) {
 
-                dataService.sendOffCommand(id, new SHCConnectorService.CommandExecutedEvent() {
+                if(dataService != null) {
 
-                    @Override
-                    public void commandExecuted(String error) {
+                    dataService.sendOffCommand(id, new SHCConnectorService.CommandExecutedEvent() {
 
-                        if(ready) {
+                        @Override
+                        public void commandExecuted(String error) {
 
-                            //Bereit
-                            if (error.equals("")) {
+                            if(ready) {
 
-                                //kein Fehler
-                                Toast.makeText(v.getContext(), R.string.errors_sendCommand_succsess, Toast.LENGTH_SHORT).show();
-                                getArguments().putInt("state", 0);
-                                updateState();
+                                //Bereit
+                                if (error.equals("")) {
+
+                                    //kein Fehler
+                                    Toast.makeText(v.getContext(), R.string.errors_sendCommand_succsess, Toast.LENGTH_SHORT).show();
+                                    getArguments().putInt("state", 0);
+                                    updateState();
+                                } else {
+
+                                    Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
+                                }
                             } else {
 
-                                Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
+                                //noch nicht bereit zum senden
+                                Toast.makeText(v.getContext(), R.string.errors_notRady, Toast.LENGTH_LONG).show();
                             }
-                        } else {
-
-                            //noch nicht bereit zum senden
-                            Toast.makeText(v.getContext(), R.string.errors_notRady, Toast.LENGTH_LONG).show();
                         }
-                    }
-                });
+                    });
+                }
             }
         });
 
