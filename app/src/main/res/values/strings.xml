@@ -1,5 +1,5 @@
 <resources>
-    <string name="displayVersion">1.0.3</string>
+    <string name="displayVersion">1.0.4</string>
 
     <string name="app_name">SHC</string>
     <string name="mainActivity">Räume</string>
