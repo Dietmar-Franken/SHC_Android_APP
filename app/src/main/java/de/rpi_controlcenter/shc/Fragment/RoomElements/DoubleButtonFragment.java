@@ -245,14 +245,17 @@ public class DoubleButtonFragment extends Fragment {
         }
 
         //Status aktualisieren
-        if(state == 1) {
+        if(onButton != null && offButton != null) {
 
-            onButton.setCompoundDrawablesWithIntrinsicBounds(R.mipmap.check, 0, 0, 0);
-            offButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-        } else {
+            if(state == 1) {
 
-            onButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-            offButton.setCompoundDrawablesWithIntrinsicBounds(R.mipmap.check, 0, 0, 0);
+                onButton.setCompoundDrawablesWithIntrinsicBounds(R.mipmap.check, 0, 0, 0);
+                offButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+            } else {
+
+                onButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+                offButton.setCompoundDrawablesWithIntrinsicBounds(R.mipmap.check, 0, 0, 0);
+            }
         }
     }
 
