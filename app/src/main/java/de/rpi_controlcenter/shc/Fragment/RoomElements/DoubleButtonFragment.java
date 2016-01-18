@@ -149,12 +149,11 @@ public class DoubleButtonFragment extends Fragment {
             @Override
             public void onClick(final View v) {
 
-                dataService.sendOnCommand(id, new SHCConnectorService.CommandExecutedEvent() {
+                if(ready) {
+                    dataService.sendOnCommand(id, new SHCConnectorService.CommandExecutedEvent() {
 
-                    @Override
-                    public void commandExecuted(String error) {
-
-                        if(ready) {
+                        @Override
+                        public void commandExecuted(String error) {
 
                             //bereit
                             if (error.equals("")) {
@@ -167,13 +166,14 @@ public class DoubleButtonFragment extends Fragment {
 
                                 Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
                             }
-                        } else {
-
-                            //noch nicht bereit zum senden
-                            Toast.makeText(v.getContext(), R.string.errors_notRady, Toast.LENGTH_LONG).show();
                         }
-                    }
-                });
+                    });
+
+                } else {
+
+                    //noch nicht bereit zum senden
+                    Toast.makeText(v.getContext(), R.string.errors_notRady, Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -184,12 +184,12 @@ public class DoubleButtonFragment extends Fragment {
 
                 if(dataService != null) {
 
-                    dataService.sendOffCommand(id, new SHCConnectorService.CommandExecutedEvent() {
+                    if(ready) {
 
-                        @Override
-                        public void commandExecuted(String error) {
+                        dataService.sendOffCommand(id, new SHCConnectorService.CommandExecutedEvent() {
 
-                            if(ready) {
+                            @Override
+                            public void commandExecuted(String error) {
 
                                 //Bereit
                                 if (error.equals("")) {
@@ -202,13 +202,13 @@ public class DoubleButtonFragment extends Fragment {
 
                                     Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
                                 }
-                            } else {
-
-                                //noch nicht bereit zum senden
-                                Toast.makeText(v.getContext(), R.string.errors_notRady, Toast.LENGTH_LONG).show();
                             }
-                        }
-                    });
+                        });
+                    } else {
+
+                        //noch nicht bereit zum senden
+                        Toast.makeText(v.getContext(), R.string.errors_notRady, Toast.LENGTH_LONG).show();
+                    }
                 }
             }
         });
