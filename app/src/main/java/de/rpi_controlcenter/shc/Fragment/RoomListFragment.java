@@ -162,8 +162,11 @@ public class RoomListFragment extends ListFragment {
 
     public void clickFirstListElement() {
 
-        Room room = (Room) roomListAdapter.getItem(0);
-        roomListItemClickListender.listItemClicked(room.getId(), room.getName());
+        if(roomListAdapter.getCount() > 0) {
+
+            Room room = (Room) roomListAdapter.getItem(0);
+            roomListItemClickListender.listItemClicked(room.getId(), room.getName());
+        }
     }
 
     @Override
