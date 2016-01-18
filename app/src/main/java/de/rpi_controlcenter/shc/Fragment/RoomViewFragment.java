@@ -121,6 +121,14 @@ public class RoomViewFragment extends Fragment {
 
                     //Wartezeit
                     try {
+
+                        //Fix für alte Einstellungen
+                        int si = syncIntervall;
+                        if(si == 500) {
+
+                            si = 1000;
+                        }
+
                         Thread.sleep(syncIntervall);
                     } catch (InterruptedException e) {
 
