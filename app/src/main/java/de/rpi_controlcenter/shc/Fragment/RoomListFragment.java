@@ -58,7 +58,7 @@ public class RoomListFragment extends ListFragment {
 
                 if (getActivity() != null) {
 
-                    ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.labelRooms);
+                    ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(" " + getString(R.string.labelRooms));
                 }
             }
         }
