@@ -2,7 +2,7 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.rpi_controlcenter.shc"
-    android:versionCode="9"
+    android:versionCode="12"
     android:versionName="@string/displayVersion" >
 
     <uses-sdk

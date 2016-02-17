@@ -1,7 +1,7 @@
 <resources>
-    <string name="displayVersion">1.0.5</string>
+    <string name="displayVersion">1.0.6</string>
 
-    <string name="app_name">SHC</string>
+    <string name="app_name">shc</string>
     <string name="mainActivity">Räume</string>
     <string name="roomViewActivity">Raum</string>
     <string name="settingsActivity">SHC Einstellungen</string>
