@@ -339,6 +339,8 @@ public class SHCConnectorService extends Service {
                                 case "Countdown":
                                 case "RadioSocket":
                                 case "RpiGpioOutput":
+                                case "EdimaxSocket":
+                                case "VirtualSocket":
 
                                     re.addData("buttonText", element.optString("buttonText", "1"));
                                     roomElements.add(re);
@@ -424,6 +426,8 @@ public class SHCConnectorService extends Service {
                                             case "Countdown":
                                             case "RadioSocket":
                                             case "RpiGpioOutput":
+                                            case "EdimaxSocket":
+                                            case "VirtualSocket":
 
                                                 bre.addData("buttonText", boxElement.optString("buttonText", "1"));
                                                 roomElements.add(bre);

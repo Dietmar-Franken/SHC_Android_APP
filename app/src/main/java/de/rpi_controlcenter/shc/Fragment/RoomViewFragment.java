@@ -307,6 +307,8 @@ public class RoomViewFragment extends Fragment {
                         case "Countdown":
                         case "RadioSocket":
                         case "RpiGpioOutput":
+                        case "EdimaxSocket":
+                        case "VirtualSocket":
 
                             //Daten zur übergabe vorbereiten
                             args.putString("id", re.getId());
