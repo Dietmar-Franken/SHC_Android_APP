@@ -372,6 +372,7 @@ public class RoomViewFragment extends Fragment {
                                     f.setArguments(args);
                                     fragmentList.put(re.getId(), f);
                                     ft.add(R.id.roomViewLayoutContainer, f);
+                                    break;
                                 case "5":
 
                                     //1 Button
