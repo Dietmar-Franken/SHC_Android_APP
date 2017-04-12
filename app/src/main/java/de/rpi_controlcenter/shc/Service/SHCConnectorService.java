@@ -3,18 +3,11 @@ package de.rpi_controlcenter.shc.Service;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,12 +20,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -102,6 +93,8 @@ public class SHCConnectorService extends Service {
     private List<Room> roomsCache;
 
     private Map<Integer, List<RoomElement>> roomElementsCache = new HashMap<>();
+
+    private Handler handler = new Handler();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -219,56 +212,60 @@ public class SHCConnectorService extends Service {
      */
     public void updateRoomList(final RoomListCallback callback, final boolean force) {
 
-        new AsyncTask<Void, Void, List<Room>>() {
-
+        final Runnable runnable = new Runnable() {
             @Override
-            protected List<Room> doInBackground(Void... params) {
-
-                //pruefen ob die Anfrage aus dem Cache bedient werden kann
-                if(force == false && roomsCache != null && roomsCache.size() > 0) {
-
-                    return roomsCache;
-                }
+            public void run() {
 
                 //Räume Liste vorbereiten
                 List<Room> rooms = new ArrayList<Room>();
 
-                //JSON String laden
-                String jsonStr = getJsonFromShcMaster("a&ajax=roomsjson");
+                //pruefen ob die Anfrage aus dem Cache bedient werden kann
+                if(force == false && roomsCache != null && roomsCache.size() > 0) {
 
-                //Fehlerüberwachung
-                if(jsonStr == null) {
-
-                    //Fehler aufgetreten
-                    return null;
+                    rooms = roomsCache;
                 } else {
 
-                    try {
+                    //JSON String laden
+                    String jsonStr = getJsonFromShcMaster("a&ajax=roomsjson");
 
-                        JSONArray jsonArray = new JSONArray(jsonStr);
-                        for(int i = 0; i < jsonArray.length(); i++) {
+                    //Fehlerüberwachung
+                    if(jsonStr == null) {
 
-                            JSONObject jo = jsonArray.getJSONObject(i);
-                            Room r = new Room(jo.getInt("id"), jo.getString("name"));
-                            rooms.add(r);
+                        //Fehler aufgetreten
+                        rooms = null;
+                    } else {
+
+                        try {
+
+                            JSONArray jsonArray = new JSONArray(jsonStr);
+                            for(int i = 0; i < jsonArray.length(); i++) {
+
+                                JSONObject jo = jsonArray.getJSONObject(i);
+                                Room r = new Room(jo.getInt("id"), jo.getString("name"));
+                                rooms.add(r);
+                            }
+
+                        } catch (JSONException e) {
+                            rooms = rooms;
                         }
-
-                    } catch (JSONException e) {
-                        return rooms;
                     }
+                    roomsCache = rooms;
                 }
-                roomsCache = rooms;
-                return rooms;
+
+                //UI Update
+                final List<Room> finalRooms = rooms;
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        callback.roomDataUpdated(finalRooms);
+                    }
+                });
             }
+        };
 
-            @Override
-            protected void onPostExecute(List<Room> rooms) {
-                super.onPostExecute(rooms);
-
-                callback.roomDataUpdated(rooms);
-            }
-        }.execute();
-
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
 
     /**
@@ -291,234 +288,239 @@ public class SHCConnectorService extends Service {
      */
     public void updateRoomElementList(final int roomId, final RoomElementsCallback callback, final boolean force) {
 
-        new AsyncTask<Void, Void, List<RoomElement>>() {
-
+        final Runnable runnable = new Runnable() {
             @Override
-            protected List<RoomElement> doInBackground(Void... params) {
-
-                //pruefen ob die Anfrage aus dem Cache bedient werden kann
-                if(force == false && roomElementsCache != null && roomElementsCache.containsKey(roomId) && roomElementsCache.get(roomId).size() > 0) {
-
-                    return roomElementsCache.get(roomId);
-                }
+            public void run() {
 
                 //Räume Liste vorbereiten
                 List<RoomElement> roomElements = new ArrayList<RoomElement>();
 
-                //JSON String laden
-                String jsonStr = getJsonFromShcMaster("a&ajax=roomelementsjson&id=" + roomId);
+                //pruefen ob die Anfrage aus dem Cache bedient werden kann
+                if(force == false && roomElementsCache != null && roomElementsCache.containsKey(roomId) && roomElementsCache.get(roomId).size() > 0) {
 
-                //Fehlerüberwachung
-                if(jsonStr == null) {
-
-                    //Fehler aufgetreten
-                    return null;
+                    roomElements = roomElementsCache.get(roomId);
                 } else {
 
-                    try {
+                    //JSON String laden
+                    String jsonStr = getJsonFromShcMaster("a&ajax=roomelementsjson&id=" + roomId);
 
-                        JSONArray jsonArray = new JSONArray(jsonStr);
-                        for(int i = 0; i < jsonArray.length(); i++) {
+                    //Fehlerüberwachung
+                    if (jsonStr == null) {
 
-                            //String in JSON Objekt umwandeln
-                            JSONObject element = jsonArray.getJSONObject(i);
+                        //Fehler aufgetreten
+                        roomElements = null;
+                    } else {
 
-                            //Raum Element initalisieren
-                            RoomElement re = new RoomElement();
-                            re.setType(element.getString("type"));
-                            re.setName(element.getString("name"));
-                            re.setId(element.optString("id", "-1"));
-                            re.setIcon(element.optString("icon", null));
-                            re.setState(element.optInt("state", 0));
+                        try {
 
-                            //Spezifische Daten laden
-                            switch(re.getType()) {
+                            JSONArray jsonArray = new JSONArray(jsonStr);
+                            for (int i = 0; i < jsonArray.length(); i++) {
 
-                                case "Activity":
-                                case "AvmSocket":
-                                case "Countdown":
-                                case "RadioSocket":
-                                case "RpiGpioOutput":
-                                case "EdimaxSocket":
-                                case "VirtualSocket":
+                                //String in JSON Objekt umwandeln
+                                JSONObject element = jsonArray.getJSONObject(i);
 
-                                    re.addData("buttonText", element.optString("buttonText", "1"));
-                                    roomElements.add(re);
-                                    break;
-                                case "FritzBox":
+                                //Raum Element initalisieren
+                                RoomElement re = new RoomElement();
+                                re.setType(element.getString("type"));
+                                re.setName(element.getString("name"));
+                                re.setId(element.optString("id", "-1"));
+                                re.setIcon(element.optString("icon", null));
+                                re.setState(element.optInt("state", 0));
 
-                                    re.addData("function", element.optString("function", "1"));
-                                    roomElements.add(re);
-                                    break;
-                                case "Script":
+                                //Spezifische Daten laden
+                                switch (re.getType()) {
 
-                                    re.addData("function", element.optString("function", "both"));
-                                    re.addData("buttonText", element.optString("buttonText", "1"));
-                                    roomElements.add(re);
-                                    break;
-                                case "AvmMeasuringSocket":
+                                    case "Activity":
+                                    case "AvmSocket":
+                                    case "Countdown":
+                                    case "RadioSocket":
+                                    case "RpiGpioOutput":
+                                    case "EdimaxSocket":
+                                    case "VirtualSocket":
 
-                                    re.addData("temp", element.optString("temp", "-273,3 °C"));
-                                    re.addData("power", element.optString("power", "-1 W"));
-                                    re.addData("energy", element.optString("energy", "-1 W"));
-                                    roomElements.add(re);
-                                    break;
-                                case "BMP":
+                                        re.addData("buttonText", element.optString("buttonText", "1"));
+                                        roomElements.add(re);
+                                        break;
+                                    case "FritzBox":
 
-                                    re.addData("temp", element.optString("temp", "-273,3 °C"));
-                                    re.addData("press", element.optString("press", "0 hPa"));
-                                    re.addData("alti", element.optString("alti", "-1000,"));
-                                    roomElements.add(re);
-                                    break;
-                                case "DHT":
+                                        re.addData("function", element.optString("function", "1"));
+                                        roomElements.add(re);
+                                        break;
+                                    case "Script":
 
-                                    re.addData("temp", element.optString("temp", "-273,3 °C"));
-                                    re.addData("hum", element.optString("hum", "-10 %"));
-                                    roomElements.add(re);
-                                    break;
-                                case "DS18x20":
+                                        re.addData("function", element.optString("function", "both"));
+                                        re.addData("buttonText", element.optString("buttonText", "1"));
+                                        roomElements.add(re);
+                                        break;
+                                    case "AvmMeasuringSocket":
 
-                                    re.addData("temp", element.optString("temp", "-273,3 °C"));
-                                    roomElements.add(re);
-                                    break;
-                                case "Hygrometer":
+                                        re.addData("temp", element.optString("temp", "-273,3 °C"));
+                                        re.addData("power", element.optString("power", "-1 W"));
+                                        re.addData("energy", element.optString("energy", "-1 W"));
+                                        roomElements.add(re);
+                                        break;
+                                    case "BMP":
 
-                                    re.addData("val", element.optString("val", "-10%"));
-                                    roomElements.add(re);
-                                    break;
-                                case "LDR":
+                                        re.addData("temp", element.optString("temp", "-273,3 °C"));
+                                        re.addData("press", element.optString("press", "0 hPa"));
+                                        re.addData("alti", element.optString("alti", "-1000,"));
+                                        roomElements.add(re);
+                                        break;
+                                    case "DHT":
 
-                                    re.addData("val", element.optString("val", "-10%"));
-                                    roomElements.add(re);
-                                    break;
-                                case "RainSensor":
+                                        re.addData("temp", element.optString("temp", "-273,3 °C"));
+                                        re.addData("hum", element.optString("hum", "-10 %"));
+                                        roomElements.add(re);
+                                        break;
+                                    case "DS18x20":
 
-                                    re.addData("val", element.optString("val", "-10%"));
-                                    roomElements.add(re);
-                                    break;
-                                case "Box":
+                                        re.addData("temp", element.optString("temp", "-273,3 °C"));
+                                        roomElements.add(re);
+                                        break;
+                                    case "Hygrometer":
 
-                                    //Box Start Element
-                                    RoomElement boxStart = new RoomElement();
-                                    boxStart.setType("boxStart");
-                                    boxStart.setName(element.getString("name"));
-                                    roomElements.add(boxStart);
+                                        re.addData("val", element.optString("val", "-10%"));
+                                        roomElements.add(re);
+                                        break;
+                                    case "LDR":
 
-                                    //Box elemente
-                                    JSONArray boxElements = element.getJSONArray("elements");
-                                    for(int j = 0; j < boxElements.length(); j++) {
+                                        re.addData("val", element.optString("val", "-10%"));
+                                        roomElements.add(re);
+                                        break;
+                                    case "RainSensor":
 
-                                        JSONObject boxElement = boxElements.getJSONObject(j);
+                                        re.addData("val", element.optString("val", "-10%"));
+                                        roomElements.add(re);
+                                        break;
+                                    case "Box":
 
-                                        //Raum Element initalisieren
-                                        RoomElement bre = new RoomElement();
-                                        bre.setType(boxElement.getString("type"));
-                                        bre.setName(boxElement.getString("name"));
-                                        bre.setId(boxElement.optString("id", "-1"));
-                                        bre.setIcon(boxElement.optString("icon", null));
-                                        bre.setState(boxElement.optInt("state", 0));
+                                        //Box Start Element
+                                        RoomElement boxStart = new RoomElement();
+                                        boxStart.setType("boxStart");
+                                        boxStart.setName(element.getString("name"));
+                                        roomElements.add(boxStart);
 
-                                        //Spezifische Daten laden
-                                        switch(bre.getType()) {
+                                        //Box elemente
+                                        JSONArray boxElements = element.getJSONArray("elements");
+                                        for (int j = 0; j < boxElements.length(); j++) {
 
-                                            case "Activity":
-                                            case "AvmSocket":
-                                            case "Countdown":
-                                            case "RadioSocket":
-                                            case "RpiGpioOutput":
-                                            case "EdimaxSocket":
-                                            case "VirtualSocket":
+                                            JSONObject boxElement = boxElements.getJSONObject(j);
 
-                                                bre.addData("buttonText", boxElement.optString("buttonText", "1"));
-                                                roomElements.add(bre);
-                                                break;
-                                            case "FritzBox":
+                                            //Raum Element initalisieren
+                                            RoomElement bre = new RoomElement();
+                                            bre.setType(boxElement.getString("type"));
+                                            bre.setName(boxElement.getString("name"));
+                                            bre.setId(boxElement.optString("id", "-1"));
+                                            bre.setIcon(boxElement.optString("icon", null));
+                                            bre.setState(boxElement.optInt("state", 0));
 
-                                                bre.addData("function", boxElement.optString("function", "1"));
-                                                roomElements.add(bre);
-                                                break;
-                                            case "Script":
+                                            //Spezifische Daten laden
+                                            switch (bre.getType()) {
 
-                                                bre.addData("function", boxElement.optString("function", "both"));
-                                                bre.addData("buttonText", boxElement.optString("buttonText", "1"));
-                                                roomElements.add(bre);
-                                                break;
-                                            case "AvmMeasuringSocket":
+                                                case "Activity":
+                                                case "AvmSocket":
+                                                case "Countdown":
+                                                case "RadioSocket":
+                                                case "RpiGpioOutput":
+                                                case "EdimaxSocket":
+                                                case "VirtualSocket":
 
-                                                bre.addData("temp", boxElement.optString("temp", "-273,3 °C"));
-                                                bre.addData("power", boxElement.optString("power", "-1 W"));
-                                                bre.addData("energy", boxElement.optString("energy", "-1 W"));
-                                                roomElements.add(bre);
-                                                break;
-                                            case "BMP":
+                                                    bre.addData("buttonText", boxElement.optString("buttonText", "1"));
+                                                    roomElements.add(bre);
+                                                    break;
+                                                case "FritzBox":
 
-                                                bre.addData("temp", boxElement.optString("temp", "-273,3 °C"));
-                                                bre.addData("press", boxElement.optString("press", "0 hPa"));
-                                                bre.addData("alti", boxElement.optString("alti", "-1000,"));
-                                                roomElements.add(bre);
-                                                break;
-                                            case "DHT":
+                                                    bre.addData("function", boxElement.optString("function", "1"));
+                                                    roomElements.add(bre);
+                                                    break;
+                                                case "Script":
 
-                                                bre.addData("temp", boxElement.optString("temp", "-273,3 °C"));
-                                                bre.addData("hum", boxElement.optString("hum", "-10 %"));
-                                                roomElements.add(bre);
-                                                break;
-                                            case "DS18x20":
+                                                    bre.addData("function", boxElement.optString("function", "both"));
+                                                    bre.addData("buttonText", boxElement.optString("buttonText", "1"));
+                                                    roomElements.add(bre);
+                                                    break;
+                                                case "AvmMeasuringSocket":
 
-                                                bre.addData("temp", boxElement.optString("temp", "-273,3 °C"));
-                                                roomElements.add(bre);
-                                                break;
-                                            case "Hygrometer":
+                                                    bre.addData("temp", boxElement.optString("temp", "-273,3 °C"));
+                                                    bre.addData("power", boxElement.optString("power", "-1 W"));
+                                                    bre.addData("energy", boxElement.optString("energy", "-1 W"));
+                                                    roomElements.add(bre);
+                                                    break;
+                                                case "BMP":
 
-                                                bre.addData("val", boxElement.optString("val", "-10%"));
-                                                roomElements.add(bre);
-                                                break;
-                                            case "LDR":
+                                                    bre.addData("temp", boxElement.optString("temp", "-273,3 °C"));
+                                                    bre.addData("press", boxElement.optString("press", "0 hPa"));
+                                                    bre.addData("alti", boxElement.optString("alti", "-1000,"));
+                                                    roomElements.add(bre);
+                                                    break;
+                                                case "DHT":
 
-                                                bre.addData("val", boxElement.optString("val", "-10%"));
-                                                roomElements.add(bre);
-                                                break;
-                                            case "RainSensor":
+                                                    bre.addData("temp", boxElement.optString("temp", "-273,3 °C"));
+                                                    bre.addData("hum", boxElement.optString("hum", "-10 %"));
+                                                    roomElements.add(bre);
+                                                    break;
+                                                case "DS18x20":
 
-                                                bre.addData("val", boxElement.optString("val", "-10%"));
-                                                roomElements.add(bre);
-                                                break;
-                                            default:
+                                                    bre.addData("temp", boxElement.optString("temp", "-273,3 °C"));
+                                                    roomElements.add(bre);
+                                                    break;
+                                                case "Hygrometer":
 
-                                                roomElements.add(bre);
-                                                break;
+                                                    bre.addData("val", boxElement.optString("val", "-10%"));
+                                                    roomElements.add(bre);
+                                                    break;
+                                                case "LDR":
+
+                                                    bre.addData("val", boxElement.optString("val", "-10%"));
+                                                    roomElements.add(bre);
+                                                    break;
+                                                case "RainSensor":
+
+                                                    bre.addData("val", boxElement.optString("val", "-10%"));
+                                                    roomElements.add(bre);
+                                                    break;
+                                                default:
+
+                                                    roomElements.add(bre);
+                                                    break;
+                                            }
                                         }
-                                    }
 
-                                    //Box End Element
-                                    RoomElement boxEnd = new RoomElement();
-                                    boxEnd.setType("boxEnd");
-                                    boxEnd.setName(element.getString("name"));
-                                    roomElements.add(boxEnd);
-                                    break;
-                                default:
+                                        //Box End Element
+                                        RoomElement boxEnd = new RoomElement();
+                                        boxEnd.setType("boxEnd");
+                                        boxEnd.setName(element.getString("name"));
+                                        roomElements.add(boxEnd);
+                                        break;
+                                    default:
 
-                                    roomElements.add(re);
-                                    break;
+                                        roomElements.add(re);
+                                        break;
+                                }
                             }
+
+                        } catch (JSONException e) {
+
+                            roomElementsCache.put(roomId, null);
                         }
-
-                    } catch (JSONException e) {
-                        roomElementsCache.put(roomId, roomElements);
-                        return roomElements;
                     }
+                    roomElementsCache.put(roomId, roomElements);
                 }
-                roomElementsCache.put(roomId, roomElements);
-                return roomElements;
-            }
 
-            @Override
-            protected void onPostExecute(List<RoomElement> roomElements) {
-                super.onPostExecute(roomElements);
+                //UI Update
+                final List<RoomElement> finalRoomElements = roomElements;
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
 
-                callback.roomElementsUpdated(roomElements);
+                        callback.roomElementsUpdated(finalRoomElements);
+                    }
+                });
             }
-        }.execute();
+        };
+
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
 
     /**
@@ -529,10 +531,11 @@ public class SHCConnectorService extends Service {
      */
     public void sync(final int roomId, final SyncCallback callback) {
 
-        new AsyncTask<Void, Void, List<RoomElement>>() {
-
+        final Runnable runnable = new Runnable() {
             @Override
-            protected List<RoomElement> doInBackground(Void... params) {
+            public void run() {
+
+                List<RoomElement> roomElements = new ArrayList<>();
 
                 //JSON String laden
                 String jsonStr = getJsonFromShcMaster("a&ajax=roomsyncjson&id=" + roomId);
@@ -541,7 +544,7 @@ public class SHCConnectorService extends Service {
                 if(jsonStr == null) {
 
                     //Fehler aufgetreten
-                    return null;
+                    roomElements = null;
                 } else {
 
                     try {
@@ -681,35 +684,42 @@ public class SHCConnectorService extends Service {
                                 }
                             }
 
-                            return syncList;
+                            roomElements = syncList;
                         } else {
 
                             //Fehler
-                            return null;
+                            roomElements = null;
                         }
 
                     } catch (JSONException e) {
 
-                        return null;
+                        roomElements = null;
                     }
                 }
-            }
 
-            @Override
-            protected void onPostExecute(List<RoomElement> roomElements) {
-                super.onPostExecute(roomElements);
+                final List<RoomElement> finalRoomElements = roomElements;
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
 
-                callback.syncFinished(roomElements);
+                        callback.syncFinished(finalRoomElements);
+                    }
+                });
             }
-        }.execute();
+        };
+
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
 
     public void sendOnCommand(final String elementId, final CommandExecutedEvent event) {
 
-        new AsyncTask<Void, Void, String>() {
+        final Runnable runnable = new Runnable() {
 
             @Override
-            protected String doInBackground(Void... params) {
+            public void run() {
+
+                String message;
 
                 //JSON String laden
                 String jsonStr = getJsonFromShcMaster("a&ajax=executeappswitchcommand&sid=" + elementId + "&command=1");
@@ -722,36 +732,47 @@ public class SHCConnectorService extends Service {
                         if(jsonObject.getBoolean("success")) {
 
                             //Erfolgreich
-                            return "";
+                            message = "";
                         } else {
 
                             //Fehler
-                            return jsonObject.getString("message");
+                            message = jsonObject.getString("message");
                         }
 
                     } catch (JSONException e) {
 
-                        return e.getLocalizedMessage();
+                        message = e.getLocalizedMessage();
                     }
+                } else {
+
+                    message = "allgemeiner Fehler";
                 }
-                return "allgemeiner Fehler";
-            }
 
-            @Override
-            protected void onPostExecute(String error) {
-                super.onPostExecute(error);
+                final String finalMessage = message;
 
-                event.commandExecuted(error);
-            }
-        }.execute();
+                //UI Update
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        event.commandExecuted(finalMessage);
+                    }
+                });
+            };
+        };
+
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
 
     public void sendOffCommand(final String elementId, final CommandExecutedEvent event) {
 
-        new AsyncTask<Void, Void, String>() {
+        final Runnable runnable = new Runnable() {
 
             @Override
-            protected String doInBackground(Void... params) {
+            public void run() {
+
+                String message;
 
                 //JSON String laden
                 String jsonStr = getJsonFromShcMaster("a&ajax=executeappswitchcommand&sid=" + elementId + "&command=0");
@@ -764,27 +785,36 @@ public class SHCConnectorService extends Service {
                         if(jsonObject.getBoolean("success")) {
 
                             //Erfolgreich
-                            return "";
+                            message = "";
                         } else {
 
                             //Fehler
-                            return jsonObject.getString("message");
+                            message = jsonObject.getString("message");
                         }
 
                     } catch (JSONException e) {
 
-                        return e.getLocalizedMessage();
+                        message = e.getLocalizedMessage();
                     }
+                } else {
+
+                    message = "allgemeiner Fehler";
                 }
-                return "allgemeiner Fehler";
-            }
 
-            @Override
-            protected void onPostExecute(String error) {
-                super.onPostExecute(error);
+                final String finalMessage = message;
 
-                event.commandExecuted(error);
-            }
-        }.execute();
+                //UI Update
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        event.commandExecuted(finalMessage);
+                    }
+                });
+            };
+        };
+
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
 }
