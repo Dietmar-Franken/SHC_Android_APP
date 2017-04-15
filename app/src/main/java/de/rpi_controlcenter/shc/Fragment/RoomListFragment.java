@@ -58,7 +58,7 @@ public class RoomListFragment extends ListFragment {
 
                 if (getActivity() != null) {
 
-                    ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.labelRooms);
+                    ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(" " + getString(R.string.labelRooms));
                 }
             }
         }
@@ -109,47 +109,50 @@ public class RoomListFragment extends ListFragment {
     public void updateRoomData(final boolean clickFirstElemnet, final boolean force) {
 
         //Update der Liste anstoßen
-        dataService.updateRoomList(new SHCConnectorService.RoomListCallback() {
+        if(dataService != null) {
 
-            @Override
-            public void roomDataUpdated(List<Room> rooms) {
+            dataService.updateRoomList(new SHCConnectorService.RoomListCallback() {
 
-                if (rooms == null) {
+                @Override
+                public void roomDataUpdated(List<Room> rooms) {
 
-                    new AlertDialog.Builder(getActivity())
-                            .setTitle(R.string.errors_nocConnection_title)
-                            .setMessage(R.string.errors_nocConnection_message)
-                            .setPositiveButton(R.string.errors_nocConnection_settings, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
+                    if (rooms == null) {
 
-                                    Intent settings = new Intent(getActivity(), SettingsActivity.class);
-                                    startActivity(settings);
-                                }
-                            })
-                            .setNegativeButton(R.string.errors_nocConnection_exit, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle(R.string.errors_nocConnection_title)
+                                .setMessage(R.string.errors_nocConnection_message)
+                                .setPositiveButton(R.string.errors_nocConnection_settings, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
 
-                                    System.exit(0);
-                                }
-                            })
-                            .show();
-                    return;
-                }
+                                        Intent settings = new Intent(getActivity(), SettingsActivity.class);
+                                        startActivity(settings);
+                                    }
+                                })
+                                .setNegativeButton(R.string.errors_nocConnection_exit, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
 
-                if(getActivity() != null) {
+                                        System.exit(0);
+                                    }
+                                })
+                                .show();
+                        return;
+                    }
 
-                    RoomListFragment.this.roomListAdapter = new RoomListAdapter(getActivity(), rooms);
-                    RoomListFragment.this.setListAdapter(RoomListFragment.this.roomListAdapter);
+                    if(getActivity() != null) {
 
-                    if (clickFirstElemnet) {
+                        RoomListFragment.this.roomListAdapter = new RoomListAdapter(getActivity(), rooms);
+                        RoomListFragment.this.setListAdapter(RoomListFragment.this.roomListAdapter);
 
-                        RoomListFragment.this.clickFirstListElement();
+                        if (clickFirstElemnet) {
+
+                            RoomListFragment.this.clickFirstListElement();
+                        }
                     }
                 }
-            }
-        }, force);
+            }, force);
+        }
     }
 
     public void setRoomListItemClickListender(RoomListItemClicked roomListItemClickListender) {
@@ -159,8 +162,11 @@ public class RoomListFragment extends ListFragment {
 
     public void clickFirstListElement() {
 
-        Room room = (Room) roomListAdapter.getItem(0);
-        roomListItemClickListender.listItemClicked(room.getId(), room.getName());
+        if(roomListAdapter.getCount() > 0) {
+
+            Room room = (Room) roomListAdapter.getItem(0);
+            roomListItemClickListender.listItemClicked(room.getId(), room.getName());
+        }
     }
 
     @Override

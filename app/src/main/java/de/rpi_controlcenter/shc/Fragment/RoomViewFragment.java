@@ -121,6 +121,14 @@ public class RoomViewFragment extends Fragment {
 
                     //Wartezeit
                     try {
+
+                        //Fix für alte Einstellungen
+                        int si = syncIntervall;
+                        if(si == 500) {
+
+                            si = 1000;
+                        }
+
                         Thread.sleep(syncIntervall);
                     } catch (InterruptedException e) {
 
@@ -139,9 +147,12 @@ public class RoomViewFragment extends Fragment {
                                 public void run() {
 
                                     //Fehler beim Syncronisieren
-                                    if(roomElements == null) {
+                                    if(roomElements == null && getActivity() != null) {
 
                                         Toast.makeText(getActivity(), R.string.errors_syncError, Toast.LENGTH_LONG).show();
+                                        return;
+                                    } else if(roomElements == null) {
+
                                         return;
                                     }
 
@@ -296,6 +307,8 @@ public class RoomViewFragment extends Fragment {
                         case "Countdown":
                         case "RadioSocket":
                         case "RpiGpioOutput":
+                        case "EdimaxSocket":
+                        case "VirtualSocket":
 
                             //Daten zur übergabe vorbereiten
                             args.putString("id", re.getId());
@@ -359,6 +372,7 @@ public class RoomViewFragment extends Fragment {
                                     f.setArguments(args);
                                     fragmentList.put(re.getId(), f);
                                     ft.add(R.id.roomViewLayoutContainer, f);
+                                    break;
                                 case "5":
 
                                     //1 Button

@@ -149,12 +149,11 @@ public class DoubleButtonFragment extends Fragment {
             @Override
             public void onClick(final View v) {
 
-                dataService.sendOnCommand(id, new SHCConnectorService.CommandExecutedEvent() {
+                if(ready) {
+                    dataService.sendOnCommand(id, new SHCConnectorService.CommandExecutedEvent() {
 
-                    @Override
-                    public void commandExecuted(String error) {
-
-                        if(ready) {
+                        @Override
+                        public void commandExecuted(String error) {
 
                             //bereit
                             if (error.equals("")) {
@@ -167,13 +166,14 @@ public class DoubleButtonFragment extends Fragment {
 
                                 Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
                             }
-                        } else {
-
-                            //noch nicht bereit zum senden
-                            Toast.makeText(v.getContext(), R.string.errors_notRady, Toast.LENGTH_LONG).show();
                         }
-                    }
-                });
+                    });
+
+                } else {
+
+                    //noch nicht bereit zum senden
+                    Toast.makeText(v.getContext(), R.string.errors_notRady, Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -182,31 +182,34 @@ public class DoubleButtonFragment extends Fragment {
             @Override
             public void onClick(final View v) {
 
-                dataService.sendOffCommand(id, new SHCConnectorService.CommandExecutedEvent() {
+                if(dataService != null) {
 
-                    @Override
-                    public void commandExecuted(String error) {
+                    if(ready) {
 
-                        if(ready) {
+                        dataService.sendOffCommand(id, new SHCConnectorService.CommandExecutedEvent() {
 
-                            //Bereit
-                            if (error.equals("")) {
+                            @Override
+                            public void commandExecuted(String error) {
 
-                                //kein Fehler
-                                Toast.makeText(v.getContext(), R.string.errors_sendCommand_succsess, Toast.LENGTH_SHORT).show();
-                                getArguments().putInt("state", 0);
-                                updateState();
-                            } else {
+                                //Bereit
+                                if (error.equals("")) {
 
-                                Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
+                                    //kein Fehler
+                                    Toast.makeText(v.getContext(), R.string.errors_sendCommand_succsess, Toast.LENGTH_SHORT).show();
+                                    getArguments().putInt("state", 0);
+                                    updateState();
+                                } else {
+
+                                    Toast.makeText(v.getContext(), R.string.errors_sendCommand_error + error, Toast.LENGTH_LONG).show();
+                                }
                             }
-                        } else {
+                        });
+                    } else {
 
-                            //noch nicht bereit zum senden
-                            Toast.makeText(v.getContext(), R.string.errors_notRady, Toast.LENGTH_LONG).show();
-                        }
+                        //noch nicht bereit zum senden
+                        Toast.makeText(v.getContext(), R.string.errors_notRady, Toast.LENGTH_LONG).show();
                     }
-                });
+                }
             }
         });
 
@@ -242,14 +245,17 @@ public class DoubleButtonFragment extends Fragment {
         }
 
         //Status aktualisieren
-        if(state == 1) {
+        if(onButton != null && offButton != null) {
 
-            onButton.setCompoundDrawablesWithIntrinsicBounds(R.mipmap.check, 0, 0, 0);
-            offButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-        } else {
+            if(state == 1) {
 
-            onButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-            offButton.setCompoundDrawablesWithIntrinsicBounds(R.mipmap.check, 0, 0, 0);
+                onButton.setCompoundDrawablesWithIntrinsicBounds(R.mipmap.check, 0, 0, 0);
+                offButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+            } else {
+
+                onButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+                offButton.setCompoundDrawablesWithIntrinsicBounds(R.mipmap.check, 0, 0, 0);
+            }
         }
     }
 

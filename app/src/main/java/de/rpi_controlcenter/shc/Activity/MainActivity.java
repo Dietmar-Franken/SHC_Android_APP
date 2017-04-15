@@ -1,5 +1,6 @@
 package de.rpi_controlcenter.shc.Activity;
 
+import android.app.ActionBar;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +32,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.mipmap.action_bar);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
+
         //Prüfen ob Tablet View Aktiv
         if(findViewById(R.id.roomViewPlaceHolderTablet) != null) {
 
@@ -56,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                     getFragmentManager().beginTransaction().replace(R.id.roomViewPlaceHolderTablet, roomViewFragment).commit();
 
                     //Titel der Action Bar setzen
-                    getSupportActionBar().setTitle(roomName);
+                    getSupportActionBar().setTitle(" " + roomName);
                 } else {
 
                     //Eigene Activity starten
